@@ -38,9 +38,10 @@ namespace DrRobot.JaguarControl
         public int deltaT = 50;
         private static int encoderMax = 32767;
         public int pulsesPerRotation = 190;
-        public double wheelRadius = 0.089;
+        public double wheelRadius = 0.08743;
         public double robotRadius = 0.242;//0.232
         private double angleTravelled, distanceTravelled;
+        private static double angleMax = Math.PI;
         private double maxVelocity = 0.10;
         const double Kpho = 2;
         const double Kalpha = 4;
@@ -242,6 +243,8 @@ namespace DrRobot.JaguarControl
         public void UpdateSensorMeasurements()
         {
             // For simulations, update the simulated measurements
+            lastEncoderPulseL = currentEncoderPulseL;
+            lastEncoderPulseR = currentEncoderPulseR;
             if (jaguarControl.Simulating())
             {
                 jaguarControl.simulatedJaguar.UpdateSensors(deltaT);
@@ -404,12 +407,26 @@ namespace DrRobot.JaguarControl
 
             // ****************** Additional Student Code: Start ************
 
-            // Put code here to calculated distanceTravelled and angleTravelled.
-            // You can set and use variables like diffEncoder1, currentEncoderPulse1,
-            // wheelDistanceL, wheelRadius, encoderResolution etc. These are defined
-            // in the Robot.h file.
-
+            // TODO: See if we need to use encoderResolution
             
+            double diffEncoderPulseL = currentEncoderPulseL - lastEncoderPulseL;
+            double diffEncoderPulseR = -1 * (currentEncoderPulseR - lastEncoderPulseR);
+
+            // Handle Overflow (EncoderPulses range from values of 0 to encoder Max)
+            if (Math.Abs(diffEncoderPulseL) > encoderMax/2)
+                diffEncoderPulseL -= Math.Sign(diffEncoderPulseL) * encoderMax;
+            if (Math.Abs(diffEncoderPulseR) > encoderMax/2)
+                diffEncoderPulseR -= Math.Sign(diffEncoderPulseR) * encoderMax;
+
+            // Calculate Wheel Distances
+            double phiL = (diffEncoderPulseL / pulsesPerRotation) * 2 * Math.PI;
+            double phiR = (diffEncoderPulseR / pulsesPerRotation) * 2 * Math.PI;
+            wheelDistanceL = phiL * wheelRadius;
+            wheelDistanceR = phiR * wheelRadius;
+
+            // Calculate Robot Movement
+            distanceTravelled = (wheelDistanceL + wheelDistanceR) / 2;
+            angleTravelled = (wheelDistanceR - wheelDistanceL) / (2 * robotRadius);
 
             // ****************** Additional Student Code: End   ************
         }
@@ -426,10 +443,18 @@ namespace DrRobot.JaguarControl
             // Make sure t stays between pi and -pi
 
             // Update the actual
-            x = 0;
-            y = 0;
-            t = 0;
+            x += distanceTravelled * Math.Cos(t + angleTravelled/2);
+            y += distanceTravelled * Math.Sin(t + angleTravelled/2);
+            t += angleTravelled;
 
+            // Keep theta between -maxAngle and maxAngle
+            if (Math.Abs(t) > angleMax)
+                t -= Math.Sign(t) * 2 * angleMax;
+            Console.Out.WriteLine("x: " + x.ToString() + " y: " + y.ToString() + " t: " + t.ToString());
+            // Update estimated position
+            x_est = x;
+            y_est = y;
+            t_est = t;
 
             // ****************** Additional Student Code: End   ************
         }
