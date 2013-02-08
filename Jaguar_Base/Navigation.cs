@@ -351,8 +351,8 @@ namespace DrRobot.JaguarControl
             else
             {
                 short scaledSpeed = (short) (motorSignalMax * distDelta / cutoff);
-                motorSignalR = (short) (16 * Math.Sign(distDelta));
-                motorSignalL = (short) (16 * Math.Sign(distDelta));
+                motorSignalR = (short) (-16 * Math.Sign(distDelta));
+                motorSignalL = (short) (-16 * Math.Sign(distDelta));
             }
             
             // ****************** Additional Student Code: End   ************                
@@ -450,7 +450,7 @@ namespace DrRobot.JaguarControl
             // Keep theta between -maxAngle and maxAngle
             if (Math.Abs(t) > angleMax)
                 t -= Math.Sign(t) * 2 * angleMax;
-            Console.Out.WriteLine("x: " + x.ToString() + " y: " + y.ToString() + " t: " + t.ToString());
+           
             // Update estimated position
             x_est = x;
             y_est = y;
