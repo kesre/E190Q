@@ -39,7 +39,7 @@ namespace DrRobot.JaguarControl
         private static int encoderMax = 32767;
         public int pulsesPerRotation = 190;
         public double wheelRadius = 0.08743;
-        public double robotRadius = 0.242;//0.232
+        public double robotRadius = .478; //Indoor   //0.242;// Previous //0.232  Old
         private double angleTravelled, distanceTravelled;
         private static double angleMax = Math.PI;
         private double maxVelocity = 0.10;
@@ -199,7 +199,7 @@ namespace DrRobot.JaguarControl
                 if (jaguarControl.controlMode == jaguarControl.AUTONOMOUS)
                     jaguarControl.realJaguar.DcMotorVelocityNonTimeCtrAll(0, 0, 0, 0, 0, 0);
                 Thread.Sleep(25);
-                 */
+                */
                
             }
         }
