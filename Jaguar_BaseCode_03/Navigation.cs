@@ -15,6 +15,9 @@ namespace DrRobot.JaguarControl
         public double x, y, t;
         public double x_est, y_est, t_est;
         public double desiredX, desiredY, desiredT;
+        public double deltaX, deltaY;
+        public double pho, alpha, beta;
+        private double desiredV, desiredW;
 
         public double currentEncoderPulseL, currentEncoderPulseR;
         public double lastEncoderPulseL, lastEncoderPulseR;
@@ -40,12 +43,13 @@ namespace DrRobot.JaguarControl
         StreamWriter logFile;
         public int deltaT = 10;
         private static int encoderMax = 32767;
-        public int pulsesPerRotation = 190;
-        public double wheelRadius = 0.089;
+        public static int pulsesPerRotation = 190;
+        public static double wheelRadius = 0.089;
         public double robotRadius = 0.2305;//0.232
         private double angleTravelled, distanceTravelled;
         private double diffEncoderPulseL, diffEncoderPulseR;
-        private double maxVelocity = 0.25;
+        private static double maxVelocity = 0.25;
+        private short maxPulses = (short)(maxVelocity * pulsesPerRotation / (2 * Math.PI * wheelRadius));
         private double Kpho = 1;
         private double Kalpha = 8;//4
         private double Kbeta = -0.5;//-1.0;
@@ -373,7 +377,7 @@ namespace DrRobot.JaguarControl
         public void TurnLoggingOn()
         {
             String date = DateTime.Now.Year.ToString() + "-" + DateTime.Now.Month.ToString() + "-" + DateTime.Now.Day.ToString() + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString() + "-" + DateTime.Now.Second.ToString();
-            logFile = File.CreateText("JaguarData_" + test + "_" + date + ".txt");
+            logFile = File.CreateText("JaguarData_" + "_" + date + ".txt");
             startTime = DateTime.Now;
             loggingOn = true;
         }
@@ -399,7 +403,11 @@ namespace DrRobot.JaguarControl
                     TimeSpan ts = DateTime.Now - startTime;
                     time = ts.TotalSeconds;
 
-                    String newData = time.ToString() + " " + x.ToString() + " " + y.ToString() + " " + t.ToString();
+                    String newData = time.ToString() + " " + x.ToString() + " " + y.ToString() + " " + t.ToString() + " " +
+                        pho.ToString() + " " + alpha.ToString() + " " + beta.ToString() + " " + 
+                        desiredV.ToString() + " " + desiredW.ToString() + " " +
+                        desiredRotRateL.ToString() + " " + desiredRotRateR.ToString() + " " + 
+                        motorSignalL.ToString() + " " + motorSignalR.ToString();
 
                     logFile.WriteLine(newData);
                 }
@@ -443,6 +451,27 @@ namespace DrRobot.JaguarControl
             // motorSignalL. Make sure the robot does not exceed 
             // maxVelocity!!!!!!!!!!!!
 
+            
+            double omegaL, omegaR;
+            double dPhiL, dPhiR;
+
+            // pho will be negative if the robot should be moving backwards.
+            desiredV = Kpho * pho;
+            desiredW = Kalpha * alpha + Kbeta * beta;
+
+            omegaL = .5 * (desiredW + desiredV / robotRadius);
+            omegaR = .5 * (desiredW - desiredV / robotRadius);
+
+            dPhiL = omegaL * robotRadius * 2 / wheelRadius;
+            dPhiR = -omegaR * robotRadius * 2 / wheelRadius;
+
+            desiredRotRateL = (short)(dPhiL * pulsesPerRotation / (2 * Math.PI));
+            desiredRotRateR = (short)(dPhiR * pulsesPerRotation / (2 * Math.PI));
+
+            // TODO: Logged motorSignals are incorrect. Verify shortness (try convert.toShort).
+            motorSignalL = (short)(Math.Max(Math.Min(desiredRotRateL,maxPulses),-maxPulses));
+            motorSignalR = (short)(Math.Max(Math.Min(desiredRotRateR,maxPulses),-maxPulses));
+
 
             // ****************** Additional Student Code: End   ************
         }
@@ -467,6 +496,15 @@ namespace DrRobot.JaguarControl
 
         #region Localization Functions
         /************************ LOCALIZATION ***********************/
+
+        public double NormalizeAngle(double angle)
+        {
+            if (Math.Abs(angle) > Math.PI)
+            {
+                angle -= Math.Sign(angle) * 2 * Math.PI;
+            }
+            return angle;
+        }
 
         // This function will grab the most recent encoder measurements
         // from either the simulator or the robot (whichever is activated)
@@ -539,19 +577,26 @@ namespace DrRobot.JaguarControl
             t = t + angleTravelled;
 
             // Ensure theta value stays between Pi and -Pi
-            while (t > Math.PI)
-            {
-                t = t - 2 * Math.PI;
-            }
-            while (t < -Math.PI)
-            {
-                t = t + 2 * Math.PI;
-            }
-
+            t = NormalizeAngle(t);
 
             x_est = x;
             y_est = y;
             t_est = t;
+
+            deltaX = desiredX - x_est;
+            deltaY = desiredY - y_est;
+
+            pho = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+            alpha = NormalizeAngle(-1 * t_est + Math.Atan2(deltaY, deltaX));            
+
+            if (Math.Abs(alpha) > Math.PI / 2)
+            {
+                alpha = NormalizeAngle(-1 * t_est + Math.Atan2(-deltaY, -deltaX));
+                pho *= -1;
+            }
+
+            beta = NormalizeAngle(-1 * t_est - alpha);
+
 
 
             // ****************** Additional Student Code: End   ************
