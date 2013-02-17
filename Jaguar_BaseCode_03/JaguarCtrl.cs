@@ -970,7 +970,6 @@ namespace DrRobot.JaguarControl
                 pictureBoxLaser.BringToFront();
                 btnScan.BringToFront();
                 btnTurnOn.BringToFront();
-              
             }
             else
             {
@@ -1155,7 +1154,10 @@ namespace DrRobot.JaguarControl
         private void checkBoxHardware_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBoxHardware.Checked)
+            {
+                navigation.CalibrateIMU();
                 experimentMode = HARDWARE;
+            }
             else
                 experimentMode = SIMULATOR;
             navigation.Reset();
