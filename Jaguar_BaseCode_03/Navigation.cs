@@ -461,8 +461,8 @@ namespace DrRobot.JaguarControl
                         motorSignalL.ToString() + " " + motorSignalR.ToString();
 
                     logFile.WriteLine(newData);
-                }
             }
+            
         }
         #endregion
 
