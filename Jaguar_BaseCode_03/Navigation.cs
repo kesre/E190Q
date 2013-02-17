@@ -15,7 +15,7 @@ namespace DrRobot.JaguarControl
         public double x, y, t;
         public double x_est, y_est, t_est;
         public double desiredX, desiredY, desiredT;
-        public double deltaX, deltaY;
+        public double deltaX, deltaY, deltaTh;
         public double pho, alpha, beta;
         private double desiredV, desiredW;
 
@@ -51,8 +51,8 @@ namespace DrRobot.JaguarControl
         private double diffEncoderPulseL, diffEncoderPulseR;
         private static double maxVelocity = 0.25;
         private short maxPulses = (short)(maxVelocity * pulsesPerRotation / (2 * Math.PI * wheelRadius));
-        private double Kpho = 1;
-        private double Kalpha = 2;//8
+        private double Kpho = .5;
+        private double Kalpha = .501;//2;//8
         private double Kbeta = -0.5;//-0.5//-1.0;
         const double alphaTrackingAccuracy = 0.10;
         const double betaTrackingAccuracy = 0.1;
@@ -454,15 +454,13 @@ namespace DrRobot.JaguarControl
             {
                 TimeSpan ts = DateTime.Now - startTime;
                 time = ts.TotalSeconds;
-                String newData = time.ToString() + " " + x.ToString() + " " + y.ToString() + " " + t.ToString() + " " +
-                        pho.ToString() + " " + alpha.ToString() + " " + beta.ToString() + " " + 
-                        desiredV.ToString() + " " + desiredW.ToString() + " " +
-                        desiredRotRateL.ToString() + " " + desiredRotRateR.ToString() + " " + 
+                String newData = time.ToString() + " " + x.ToString() + " " + y.ToString() + " " + t.ToString() + " | " +
+                        pho.ToString() + " " + alpha.ToString() + " " + beta.ToString() + " | " + 
+                        desiredV.ToString() + " " + desiredW.ToString() + " | " +
                         motorSignalL.ToString() + " " + motorSignalR.ToString();
 
                     logFile.WriteLine(newData);
             }
-            
         }
         #endregion
 
@@ -510,7 +508,8 @@ namespace DrRobot.JaguarControl
 
             // pho will be negative if the robot should be moving backwards.
             desiredV = Kpho * pho;
-            desiredW = Kalpha * alpha + Kbeta * beta;
+            // TODO: Why does this work only when it's negative?
+            desiredW = -(Kalpha * alpha + Kbeta * beta);
 
             omegaL = .5 * (desiredW + desiredV / robotRadius);
             omegaR = .5 * (desiredW - desiredV / robotRadius);
@@ -520,11 +519,6 @@ namespace DrRobot.JaguarControl
 
             desiredRotRateL = (short)(dPhiL * pulsesPerRotation / (2 * Math.PI));
             desiredRotRateR = (short)(dPhiR * pulsesPerRotation / (2 * Math.PI));
-
-            // TODO: Logged motorSignals are incorrect. Verify shortness (try convert.toShort).
-            motorSignalL = (short)(Math.Max(Math.Min(desiredRotRateL,maxPulses),-maxPulses));
-            motorSignalR = (short)(Math.Max(Math.Min(desiredRotRateR,maxPulses),-maxPulses));
-
 
             // ****************** Additional Student Code: End   ************
         }
@@ -638,17 +632,18 @@ namespace DrRobot.JaguarControl
 
             deltaX = desiredX - x_est;
             deltaY = desiredY - y_est;
+            deltaTh = desiredT - t_est;
 
             pho = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
-            alpha = NormalizeAngle(-1 * t_est + Math.Atan2(deltaY, deltaX));            
+            alpha = NormalizeAngle(-t_est + Math.Atan2(deltaY, deltaX));            
 
             if (Math.Abs(alpha) > Math.PI / 2)
             {
-                alpha = NormalizeAngle(-1 * t_est + Math.Atan2(-deltaY, -deltaX));
+                alpha = NormalizeAngle(-t_est + Math.Atan2(-deltaY, -deltaX));
                 pho *= -1;
             }
 
-            beta = NormalizeAngle(-1 * t_est - alpha);
+            beta = NormalizeAngle(deltaTh - alpha);
 
 
 
