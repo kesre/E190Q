@@ -51,9 +51,9 @@ namespace DrRobot.JaguarControl
         private double diffEncoderPulseL, diffEncoderPulseR;
         private static double maxVelocity = 0.25;
         private short maxPulses = (short)(maxVelocity * pulsesPerRotation / (2 * Math.PI * wheelRadius));
-        private double Kpho = .5;
-        private double Kalpha = .501;//2;//8
-        private double Kbeta = -0.5;//-0.5//-1.0;
+        private double Kpho = 1;//1;
+        private double Kalpha = 1.1;//2;//8
+        private double Kbeta = -1;//-0.5//-1.0;
         const double alphaTrackingAccuracy = 0.10;
         const double betaTrackingAccuracy = 0.1;
         const double phoTrackingAccuracy = 0.10;
@@ -350,15 +350,17 @@ namespace DrRobot.JaguarControl
         public void CalcSimulatedMotorSignals()
         {
 
+            short maxPosOutput = 32767;
             motorSignalL = (short)(desiredRotRateL);
             motorSignalR = (short)(desiredRotRateR);
+            motorSignalL = (short)Math.Min(maxPosOutput, Math.Max(-maxPosOutput, (int)motorSignalL));
+            motorSignalR = (short)Math.Min(maxPosOutput, Math.Max(-maxPosOutput, (int)motorSignalR));
 
         }
         public void CalcMotorSignals()
         {
             short zeroOutput = 16383;
             short maxPosOutput = 32767;
-
 
             // We will use the desiredRotRateRs to set our PWM signals
             int cur_e_R = desiredRotRateR - ((int)diffEncoderPulseR / deltaT);
@@ -370,21 +372,25 @@ namespace DrRobot.JaguarControl
 
             int maxErr = (int)(3000 / deltaT);
 
+            // Straight
+            //double K_p = 25;
+            //double K_i = 15;
+            //double K_d = 10;
 
-            double K_p = 0.1;//1
-            double K_i = 12 / deltaT;//20
-            double K_d = 100.1;
+            double K_p = 25;// 
+            double K_i = 12;// 12 / deltaT;//20
+            double K_d = 13; //100.1;
 
-            Kpho = 1.5;
-            Kalpha = 8;//4
-            Kbeta = -0.8;//-1.0;
+            //Kpho = 1.5;
+            //Kalpha = 8;//4
+            //Kbeta = -0.8;//-1.0;
 
 
             u_R = K_p * e_R + K_i * e_sum_R + K_d * e_dir_R;
             u_L = K_p * e_L + K_i * e_sum_L + K_d * e_dir_L;
 
-            motorSignalL = (short)(zeroOutput + desiredRotRateL * 300);// (zeroOutput + u_L);
-            motorSignalR = (short)(zeroOutput - desiredRotRateR * 100);//(zeroOutput - u_R);
+            motorSignalL = (short)(zeroOutput + u_L);// (zeroOutput + u_L);
+            motorSignalR = (short)(zeroOutput - u_R);//(zeroOutput - u_R);
 
             motorSignalL = (short)Math.Min(maxPosOutput, Math.Max(0, (int)motorSignalL));
             motorSignalR = (short)Math.Min(maxPosOutput, Math.Max(0, (int)motorSignalR));
@@ -508,18 +514,28 @@ namespace DrRobot.JaguarControl
 
             // pho will be negative if the robot should be moving backwards.
             desiredV = Kpho * pho;
-            // TODO: Why does this work only when it's negative?
-            desiredW = -(Kalpha * alpha + Kbeta * beta);
-
-            omegaL = .5 * (desiredW + desiredV / robotRadius);
-            omegaR = .5 * (desiredW - desiredV / robotRadius);
+            if (Math.Abs(pho) > .2)
+            {  
+                desiredW = Kalpha * alpha + Kbeta * beta;
+            }
+            else if (Math.Abs(deltaTh) > .2)
+            {
+                desiredW = .3 * deltaTh;
+            }
+            else
+            {
+                desiredV = 0;
+                desiredW = 0;
+            }
+      
+            omegaL = .5 * (desiredV - desiredW / robotRadius);
+            omegaR = .5 * (desiredV + desiredW / robotRadius);
 
             dPhiL = omegaL * robotRadius * 2 / wheelRadius;
-            dPhiR = -omegaR * robotRadius * 2 / wheelRadius;
+            dPhiR = omegaR * robotRadius * 2 / wheelRadius;
 
             desiredRotRateL = (short)(dPhiL * pulsesPerRotation / (2 * Math.PI));
             desiredRotRateR = (short)(dPhiR * pulsesPerRotation / (2 * Math.PI));
-
             // ****************** Additional Student Code: End   ************
         }
 
@@ -632,7 +648,7 @@ namespace DrRobot.JaguarControl
 
             deltaX = desiredX - x_est;
             deltaY = desiredY - y_est;
-            deltaTh = desiredT - t_est;
+            deltaTh = NormalizeAngle(desiredT - t_est);
 
             pho = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
             alpha = NormalizeAngle(-t_est + Math.Atan2(deltaY, deltaX));            
