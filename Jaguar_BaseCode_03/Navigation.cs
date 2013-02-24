@@ -51,9 +51,9 @@ namespace DrRobot.JaguarControl
         private double diffEncoderPulseL, diffEncoderPulseR;
         private static double maxVelocity = 0.25;
         private short maxPulses = (short)(maxVelocity * pulsesPerRotation / (2 * Math.PI * wheelRadius));
-        private double Kpho = 1;//1;
-        private double Kalpha = 1.1;//2;//8
-        private double Kbeta = -1;//-0.5//-1.0;
+        public double Kpho = 1;//1;
+        public double Kalpha = 1.1;//2;//8
+        public double Kbeta = -1;//-0.5//-1.0;
         const double alphaTrackingAccuracy = 0.10;
         const double betaTrackingAccuracy = 0.1;
         const double phoTrackingAccuracy = 0.10;
@@ -69,6 +69,15 @@ namespace DrRobot.JaguarControl
         public double u_L = 0;
         public double e_R = 0;
         public double e_L = 0;
+
+        // Straight
+        //double K_p = 25;
+        //double K_i = 15;
+        //double K_d = 10;
+
+        public double K_p = 25;// 
+        public double K_i = 12;// 12 / deltaT;//20
+        public double K_d = 13; //100.1;
 
         public double accCalib_x = 18;
         public double accCalib_y = 4;
@@ -372,14 +381,7 @@ namespace DrRobot.JaguarControl
 
             int maxErr = (int)(3000 / deltaT);
 
-            // Straight
-            //double K_p = 25;
-            //double K_i = 15;
-            //double K_d = 10;
 
-            double K_p = 25;// 
-            double K_i = 12;// 12 / deltaT;//20
-            double K_d = 13; //100.1;
 
             //Kpho = 1.5;
             //Kalpha = 8;//4
@@ -463,7 +465,9 @@ namespace DrRobot.JaguarControl
                 String newData = time.ToString() + " " + x.ToString() + " " + y.ToString() + " " + t.ToString() + " | " +
                         pho.ToString() + " " + alpha.ToString() + " " + beta.ToString() + " | " + 
                         desiredV.ToString() + " " + desiredW.ToString() + " | " +
-                        motorSignalL.ToString() + " " + motorSignalR.ToString();
+                        motorSignalL.ToString() + " " + motorSignalR.ToString() + " | " +
+                        Kpho.ToString() + " " + Kalpha.ToString() + " " + Kbeta.ToString() + " | " +
+                        K_p.ToString() + " " + K_i.ToString() + " " + K_d.ToString();
 
                     logFile.WriteLine(newData);
             }

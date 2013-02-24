@@ -109,6 +109,19 @@
             this.label16 = new System.Windows.Forms.Label();
             this.desiredT = new System.Windows.Forms.Label();
             this.txtStartTheta = new System.Windows.Forms.TextBox();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label23 = new System.Windows.Forms.Label();
+            this.label24 = new System.Windows.Forms.Label();
+            this.k_pho = new System.Windows.Forms.TextBox();
+            this.k_alpha = new System.Windows.Forms.TextBox();
+            this.k_beta = new System.Windows.Forms.TextBox();
+            this.k_p = new System.Windows.Forms.TextBox();
+            this.k_i = new System.Windows.Forms.TextBox();
+            this.k_d = new System.Windows.Forms.TextBox();
+            this.gain_Set_Button = new System.Windows.Forms.Button();
             this.groupBoxGPSIMU.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.realJaguar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxIMUGPS)).BeginInit();
@@ -1010,12 +1023,137 @@
             this.txtStartTheta.TabIndex = 70;
             this.txtStartTheta.Text = "0";
             // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(1015, 51);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(38, 13);
+            this.label19.TabIndex = 71;
+            this.label19.Text = "K_pho";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(1015, 81);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(46, 13);
+            this.label20.TabIndex = 72;
+            this.label20.Text = "K_alpha";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(1015, 112);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(41, 13);
+            this.label21.TabIndex = 73;
+            this.label21.Text = "K_beta";
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(1015, 156);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(26, 13);
+            this.label22.TabIndex = 74;
+            this.label22.Text = "K_p";
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(1015, 187);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(22, 13);
+            this.label23.TabIndex = 75;
+            this.label23.Text = "K_i";
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(1015, 217);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(26, 13);
+            this.label24.TabIndex = 76;
+            this.label24.Text = "K_d";
+            // 
+            // k_pho
+            // 
+            this.k_pho.Location = new System.Drawing.Point(1068, 47);
+            this.k_pho.Name = "k_pho";
+            this.k_pho.Size = new System.Drawing.Size(76, 20);
+            this.k_pho.TabIndex = 77;
+            this.k_pho.TextChanged += new System.EventHandler(this.k_pho_TextChanged);
+            // 
+            // k_alpha
+            // 
+            this.k_alpha.Location = new System.Drawing.Point(1068, 77);
+            this.k_alpha.Name = "k_alpha";
+            this.k_alpha.Size = new System.Drawing.Size(75, 20);
+            this.k_alpha.TabIndex = 78;
+            this.k_alpha.TextChanged += new System.EventHandler(this.k_alpha_TextChanged);
+            // 
+            // k_beta
+            // 
+            this.k_beta.Location = new System.Drawing.Point(1068, 108);
+            this.k_beta.Name = "k_beta";
+            this.k_beta.Size = new System.Drawing.Size(74, 20);
+            this.k_beta.TabIndex = 79;
+            this.k_beta.TextChanged += new System.EventHandler(this.k_beta_TextChanged);
+            // 
+            // k_p
+            // 
+            this.k_p.Location = new System.Drawing.Point(1068, 153);
+            this.k_p.Name = "k_p";
+            this.k_p.Size = new System.Drawing.Size(73, 20);
+            this.k_p.TabIndex = 80;
+            this.k_p.TextChanged += new System.EventHandler(this.k_p_TextChanged);
+            // 
+            // k_i
+            // 
+            this.k_i.Location = new System.Drawing.Point(1068, 183);
+            this.k_i.Name = "k_i";
+            this.k_i.Size = new System.Drawing.Size(72, 20);
+            this.k_i.TabIndex = 81;
+            this.k_i.TextChanged += new System.EventHandler(this.k_i_TextChanged);
+            // 
+            // k_d
+            // 
+            this.k_d.Location = new System.Drawing.Point(1068, 213);
+            this.k_d.Name = "k_d";
+            this.k_d.Size = new System.Drawing.Size(72, 20);
+            this.k_d.TabIndex = 82;
+            this.k_d.TextChanged += new System.EventHandler(this.k_d_TextChanged);
+            // 
+            // gain_Set_Button
+            // 
+            this.gain_Set_Button.Location = new System.Drawing.Point(1018, 252);
+            this.gain_Set_Button.Name = "gain_Set_Button";
+            this.gain_Set_Button.Size = new System.Drawing.Size(121, 33);
+            this.gain_Set_Button.TabIndex = 83;
+            this.gain_Set_Button.Text = "Set Gains";
+            this.gain_Set_Button.UseVisualStyleBackColor = true;
+            this.gain_Set_Button.Click += new System.EventHandler(this.gain_Set_Button_Click);
+            // 
             // JaguarCtrl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.ClientSize = new System.Drawing.Size(1016, 698);
+            this.ClientSize = new System.Drawing.Size(1168, 698);
+            this.Controls.Add(this.gain_Set_Button);
+            this.Controls.Add(this.k_d);
+            this.Controls.Add(this.k_i);
+            this.Controls.Add(this.k_p);
+            this.Controls.Add(this.k_beta);
+            this.Controls.Add(this.k_alpha);
+            this.Controls.Add(this.k_pho);
+            this.Controls.Add(this.label24);
+            this.Controls.Add(this.label23);
+            this.Controls.Add(this.label22);
+            this.Controls.Add(this.label21);
+            this.Controls.Add(this.label20);
+            this.Controls.Add(this.label19);
             this.Controls.Add(this.txtStartTheta);
             this.Controls.Add(this.desiredT);
             this.Controls.Add(this.lblTemp4);
@@ -1178,6 +1316,19 @@
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label desiredT;
         public System.Windows.Forms.TextBox txtStartTheta;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.TextBox k_pho;
+        private System.Windows.Forms.TextBox k_alpha;
+        private System.Windows.Forms.TextBox k_beta;
+        private System.Windows.Forms.TextBox k_p;
+        private System.Windows.Forms.TextBox k_i;
+        private System.Windows.Forms.TextBox k_d;
+        private System.Windows.Forms.Button gain_Set_Button;
     }
 }
 

@@ -149,6 +149,17 @@ namespace DrRobot.JaguarControl
         public bool runSensorThread;
         #endregion
 
+        #region Gain Variables
+
+        private double k_pho_next = 0;
+        private double k_alpha_next = 0;
+        private double k_beta_next = 0;
+        private double k_p_next = 0;
+        private double k_i_next = 0;
+        private double k_d_next = 0;
+
+        #endregion
+
         /////////////////////////////////////////////////////////////////
         
         #region Form functions
@@ -162,6 +173,7 @@ namespace DrRobot.JaguarControl
             robotCfg = drRobotConnect.robotConfig;
             jaguarSetting = (RobotConfig.RobotConfigTableRow)robotCfg.RobotConfigTable.Rows[0];
             InitializeComponent();
+            initializeGainTextBoxes();
 
             // Setup graphics for simulation
             SetStyle(ControlStyles.OptimizedDoubleBuffer, false);
@@ -1193,6 +1205,60 @@ namespace DrRobot.JaguarControl
         }
 
         # endregion
+
+        #region Gain Changing
+
+        private void initializeGainTextBoxes()
+        {
+            k_pho.Text = Convert.ToString(navigation.Kpho);
+            k_alpha.Text = Convert.ToString(navigation.Kalpha);
+            k_beta.Text = Convert.ToString(navigation.Kbeta);
+            k_p.Text = Convert.ToString(navigation.K_p);
+            k_i.Text = Convert.ToString(navigation.K_i);
+            k_d.Text = Convert.ToString(navigation.K_d);
+        }
+
+        private void k_pho_TextChanged(object sender, EventArgs e)
+        {
+            k_pho_next = Convert.ToDouble(k_pho.Text);
+        }
+
+        private void k_alpha_TextChanged(object sender, EventArgs e)
+        {
+            k_alpha_next = Convert.ToDouble(k_alpha.Text);
+        }
+
+        private void k_beta_TextChanged(object sender, EventArgs e)
+        {
+            k_beta_next = Convert.ToDouble(k_beta.Text);
+        }
+
+        private void k_p_TextChanged(object sender, EventArgs e)
+        {
+            k_p_next = Convert.ToDouble(k_p.Text);
+        }
+
+        private void k_i_TextChanged(object sender, EventArgs e)
+        {
+            k_i_next = Convert.ToDouble(k_i.Text);
+        }
+
+        private void k_d_TextChanged(object sender, EventArgs e)
+        {
+            k_d_next = Convert.ToDouble(k_d.Text);
+        }
+
+        private void gain_Set_Button_Click(object sender, EventArgs e)
+        {
+            navigation.Kpho = k_pho_next;
+            navigation.Kalpha = k_alpha_next;
+            navigation.Kbeta = k_beta_next;
+            navigation.K_p = k_p_next;
+            navigation.K_i = k_i_next;
+            navigation.K_d = k_d_next;
+        }
+
+        #endregion
 
     }
 }
