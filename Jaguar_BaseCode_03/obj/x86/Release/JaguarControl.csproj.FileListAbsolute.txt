@@ -483,3 +483,11 @@ C:\Users\HMC\Documents\GitHub\E190Q\Jaguar_BaseCode_03\obj\x86\Release\DrRobot.J
 C:\Users\HMC\Documents\GitHub\E190Q\Jaguar_BaseCode_03\obj\x86\Release\DrRobot.JaguarControl.Properties.Resources.resources
 C:\Users\HMC\Documents\GitHub\E190Q\Jaguar_BaseCode_03\obj\x86\Release\ResGen.read.1.tlog
 C:\Users\HMC\Documents\GitHub\E190Q\Jaguar_BaseCode_03\obj\x86\Release\ResGen.write.1.tlog
+C:\Users\dersek\Documents\GitHub\E190Q\Jaguar_BaseCode_03\obj\x86\Release\Interop.AXISMEDIACONTROLLib.dll
+C:\Users\dersek\Documents\GitHub\E190Q\Jaguar_BaseCode_03\obj\x86\Release\Interop.DRROBOTSentinelCONTROLLib.dll
+C:\Users\dersek\Documents\GitHub\E190Q\Jaguar_BaseCode_03\obj\x86\Release\Interop.EARTHLib.dll
+C:\Users\dersek\Documents\GitHub\E190Q\Jaguar_BaseCode_03\obj\x86\Release\AxInterop.AXISMEDIACONTROLLib.dll
+C:\Users\dersek\Documents\GitHub\E190Q\Jaguar_BaseCode_03\obj\x86\Release\AxInterop.DRROBOTSentinelCONTROLLib.dll
+C:\Users\dersek\Documents\GitHub\E190Q\Jaguar_BaseCode_03\obj\x86\Release\JaguarControl.csproj.ResolveComReference.cache
+C:\Users\dersek\Documents\GitHub\E190Q\Jaguar_BaseCode_03\obj\x86\Release\JaguarControl.exe
+C:\Users\dersek\Documents\GitHub\E190Q\Jaguar_BaseCode_03\obj\x86\Release\JaguarControl.pdb
