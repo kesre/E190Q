@@ -1,219 +1,297 @@
 ﻿using System;
-using Random;
+using System.Collections.Generic;
 
-public class Genetic
+namespace DrRobot.JaguarControl
 {
-
-    private class Organism
+    public class Genetic
     {
-        enum Chrom { K_pho, K_a, K_b, K_p, K_i, K_d };
 
-        #region Organism Data Members
-        private static Random rnd_ = new Random();
-
-        private int[] genes_ = null;
-        private int geneMax = 127;
-
-        public int fitness;
-
-        private int mutationFactor_;
-         
-        #endregion
-
-        public Organism(int K_pho, int K_a, int K_b, int K_p, int K_i, int K_d, int mutationFactor)
+        private class Organism
         {
-            genes_ = new int[6] {K_pho, K_a, K_b, K_p, K_i, K_d};
-            fitness = 0;
-            mutationFactor_ = Math.Max(0, Math.Min(geneMax, mutationFactor));
-        }
+            enum Chrom { K_pho, K_a, K_b, K_p, K_i, K_d };
 
-        public Organism(int mutationFactor)
-        {
-            genes_ = new int[6] {0, 0, 0, 0, 0, 0};
-            fitness = 0;
-            mutationFactor_ = Math.Max(0, Math.Min(geneMax, mutationFactor));
-            Mutate();
-        }
+            #region Organism Data Members
+            private static Random rnd_ = new Random();
 
-        #region Organism Methods
+            private double[] genes_ = null;
+            private double geneMax = 127;
 
-        // Perturb the Chromosomes of a gene.
-        public Organism Mutate()
-        {
-            for (Chrom it = K_pho; it <= K_d; it++)
+            public double fitness;
+
+            private int mutationFactor_;
+
+            #endregion
+
+            public Organism(double K_pho, double K_a, double K_b, double K_p, double K_i, double K_d, int mutationFactor)
             {
-                genes_[(int)it] += rnd_.next(-mutationFactor, mutationFactor);
-            }
-            Stabilize();
-        }
-
-        // Stabilize the Chromosomes of a gene.
-        public void Stabilize()
-        {
-            while (getKpho() <= 0 || Math.Abs(getKpho()) > geneMax)
-            {
-                genes_[(int)Chrom.K_pho] += rnd_.next(-mutationFactor, mutationFactor);
+                genes_ = new double[6] { K_pho, K_a, K_b, K_p, K_i, K_d };
+                fitness = 0;
+                mutationFactor_ = (int) Math.Max(0.0, Math.Min(geneMax, mutationFactor));
             }
 
-            while (getKb() >= 0 || Math.Abs(getKb()) > geneMax)
+            public Organism(int mutationFactor)
             {
-                genes_[(int)Chrom.K_b] -= rnd_.next(-mutationFactor, mutationFactor);
+                genes_ = new double[6] { 0, 0, 0, 0, 0, 0 };
+                fitness = 0;
+                mutationFactor_ = (int) Math.Max(0, Math.Min(geneMax, mutationFactor));
+                Mutate();
             }
 
-            while (getKa() <= getKpho() || Math.Abs(getKa()) > geneMax)
-            {
-                genes_[(int)Chrom.K_a] += rnd_.next(-mutationFactor, mutationFactor);
-            }
+            #region Organism Methods
 
-            for (Chrom it = K_p; it <= K_d; it++)
+            // Perturb the Chromosomes of a gene.
+            public void Mutate()
             {
-                while (Math.Abs(genes_[(int)it]) > geneMax)
+                for (Chrom it = Chrom.K_pho; it <= Chrom.K_d; it++)
                 {
-                    genes_[(int)it] += rnd_.next(-mutationFactor, mutationFactor);
+                    genes_[(int)it] += Organism.rnd_.Next(-mutationFactor_, mutationFactor_);
+                }
+                Stabilize();
+            }
+
+            // Stabilize the Chromosomes of a gene.
+            public void Stabilize()
+            {
+                //while (getKpho() <= 0 || Math.Abs(getKpho()) > geneMax)
+                //{
+                //    genes_[(int)Chrom.K_pho] += Organism.rnd_.Next(-mutationFactor_, mutationFactor_);
+                //}
+
+                //while (getKb() >= 0 || Math.Abs(getKb()) > geneMax)
+                //{
+                //    genes_[(int)Chrom.K_b] += Organism.rnd_.Next(-mutationFactor_, mutationFactor_);
+                //}
+
+                //while (getKa() <= getKpho() || Math.Abs(getKa()) > geneMax)
+                //{
+                //    genes_[(int)Chrom.K_a] += Organism.rnd_.Next(-mutationFactor_, mutationFactor_);
+                //}
+
+                for (Chrom it = Chrom.K_p; it <= Chrom.K_d; it++)
+                {
+                    while (Math.Abs(genes_[(int)it]) > geneMax)
+                    {
+                        genes_[(int)it] += Organism.rnd_.Next(-mutationFactor_, mutationFactor_);
+                    }
                 }
             }
+
+            // Simulate reproduction of two different organism
+            public Organism Crossover(Organism parent2)
+            {
+                Organism ret = new Organism(
+                    (getKpho() + parent2.getKpho()) / 2,
+                    (getKa() + parent2.getKa()) / 2,
+                    (getKb() + parent2.getKb()) / 2,
+                    (getKp() + parent2.getKp()) / 2,
+                    (getKi() + parent2.getKi()) / 2,
+                    (getKd() + parent2.getKd()) / 2,
+                    mutationFactor_);
+
+                ret.Stabilize();
+                return ret;
+            }
+            #endregion
+
+            #region Accessor Methods
+
+            public double[] getGenes()
+            {
+                return genes_;
+            }
+
+            public double getKpho()
+            {
+                return genes_[(int)Chrom.K_pho];
+            }
+
+            public double getKa()
+            {
+                return genes_[(int)Chrom.K_a];
+            }
+
+            public double getKb()
+            {
+                return genes_[(int)Chrom.K_b];
+            }
+
+            public double getKp()
+            {
+                return genes_[(int)Chrom.K_p];
+            }
+
+            public double getKi()
+            {
+                return genes_[(int)Chrom.K_i];
+            }
+
+            public double getKd()
+            {
+                return genes_[(int)Chrom.K_d];
+            }
+
+            #endregion
+
+
         }
 
-        // Simulate reproduction of two different organism
-        public Organism Crossover(Organism parent2)
-        {
-            Organism ret = new Organism(
-                (getKpho() + parent2.getKpho()) / 2,
-                (getKa() + parent2.getKa()) / 2,
-                (getKb() + parent2.getKb()) / 2,
-                (getKp() + parent2.getKp()) / 2,
-                (getKi() + parent2.getKi()) / 2,
-                (getKd() + parent2.getKd()) / 2,
-                mutationFactor);
+        #region Genetic Algorithm Data
+        private static Random rnd_ = new Random();
+        private int numGenerations_;
 
-            ret.Stabilize();
-            return ret;
-        }
+        private int curGen_;
+        private bool changedOrg_;
+        private Organism bestOrg_;
+
+        private int curOrg_;
+        private double curOrgClosestPho_;
+        private double curOrgClosestTh_;
+        private double curOrgFarthestPho_;
+        private double curOrgFarthestTh_;
+
+        private int maxSteps_;
+        private int curStep_;
+
+
+        private int popSize_;
+        private int numParents_;
+        private int mutationRate_;
+        private int mutationFactor_;
+
+        private List<Organism> pop_;
+        private Navigation nav_;
         #endregion
 
-        #region Accessor Methods
-
-        public int[] getGenes()
+        public Genetic(int numGenerations, int popSize, int mutationRate, int mutationFactor,
+            Navigation nav, int numParents, int maxSteps)
         {
-            return genes_;
+            numGenerations_ = numGenerations;
+            popSize_ = popSize;
+            numParents_ = Math.Min(numParents, popSize_);
+            maxSteps_ = maxSteps;
+            mutationRate_ = mutationRate;
+            mutationFactor_ = mutationFactor;
+            nav_ = nav;
+
+            // Create the initial population
+            pop_ = new List<Organism>(popSize_);
+            for (int i = 0; i < popSize_; i++)
+            {
+                pop_.Add(new Organism(mutationFactor_));
+            }
+
+            curGen_ = 0;
+            curOrg_ = 0;
+            curStep_ = 0;
+            changedOrg_ = true;
         }
 
-        public int getKpho()
+        public double[] Step(double pho, double deltaTh)
         {
-            return genes_[(int)Chrom.K_pho];
-        }
 
-        public int getKa()
-        {
-            return genes_[(int)Chrom.K_a];
-        }
+            if (curGen_ == numGenerations_)
+            {
+                return bestOrg_.getGenes();
+            }
 
-        public int getKb()
-        {
-            return genes_[(int)Chrom.K_b];
-        }
+            if (curStep_ != maxSteps_)
+            {
+                deltaTh = Math.Abs(deltaTh);
+                pho = Math.Abs(pho);
+                // Closest and farthest values are stored as positive values.
+                if (curOrgClosestTh_ > deltaTh || curOrgClosestPho_ > pho)
+                {
+                    curOrgClosestTh_ = deltaTh;
+                    curOrgClosestPho_ = pho;
+                }
 
-        public int getKp()
-        {
-            return genes_[(int)Chrom.K_p];
-        }
+                if (curOrgFarthestTh_ < deltaTh || curOrgFarthestPho_ < pho)
+                {
+                    curOrgFarthestTh_ = deltaTh;
+                    curOrgFarthestPho_ = pho;
+                }
 
-        public int getKi()
-        {
-            return genes_[(int)Chrom.K_i];
-        }
+                ++curStep_;
+                return pop_[curOrg_].getGenes();
+            }
 
-        public int getKd()
-        {
-            return genes_[(int)Chrom.K_d];
-        }
+            // Cursteps == maxSteps, so calculate and set fitness
+            // TODO: Work on units and balance of the fitness function
+            pop_[curOrg_].fitness = (100.0 / curOrgClosestPho_) +
+                (Math.PI / curOrgClosestTh_) -
+                (25.0 * curOrgFarthestPho_) -
+                (Math.PI / 2.0 * curOrgFarthestTh_);
 
-        #endregion
+            // If this is the last org of the pop, sort by fitness
+            // and update bestOrg, then set curOrg to 0 and create 
+            // new pop using old pop (crossover and mutate)
 
+            if (curOrg_ == popSize_ - 1)
+            {
+                pop_.Sort(
+                      delegate(Organism p1, Organism p2)
+                      {
+                          return p1.fitness.CompareTo(p2.fitness);
+                      }
+                );
 
-    }
-    
-    #region Genetic Algorithm Data
-    private int numGenerations_;
+                if (pop_[popSize_ - 1].fitness > bestOrg_.fitness)
+                {
+                    bestOrg_ = pop_[popSize_ - 1];
+                }
 
-    private int curGen_;
-    private bool changedOrg_;
-    private Organism bestOrg_;
+                makeTNG();
+                curOrg_ = 0;
+            }
+            else
+            {
+                ++curOrg_;
+            }
 
-    private int curOrg_;
-    private int curOrgClosestPho_;
-    private int curOrgClosestTh_;
-    private int curOrgFarthestPho_;
-    private int curOrgFarthestTh_;
+            // Reset nav for next run
+            bool loggingWasOn = nav_.loggingOn;
+            double desiredX = nav_.desiredX;
+            double desiredY = nav_.desiredY;
+            double desiredT = nav_.desiredT;
+            nav_.InternalReset();
+            nav_.loggingOn = loggingWasOn;
+            nav_.desiredX = desiredX;
+            nav_.desiredY = desiredY;
+            nav_.desiredT = desiredT;
 
-    private int maxSteps_;
-    private int curStep_;
+            // Reset Fitness evaluators.
+            curOrgClosestPho_ = double.PositiveInfinity;
+            curOrgClosestTh_ = double.PositiveInfinity;
+            curOrgFarthestPho_ = 0;
+            curOrgFarthestTh_ = 0;
 
-
-    private int popSize_;
-    private int mutationRate_;
-    private int mutationFactor_;
-    
-    private Organism[] pop_;
-    #endregion
-
-    public Genetic(int numGenerations, int popSize, int mutationRate, int mutationFactor)
-	{
-        numGenerations_ = numGenerations;
-        popSize_ = popSize;
-        mutationRate_ = mutationRate;
-        mutationFactor_ = mutationFactor;
-
-        // Create the initial population
-        pop_ = new Organism[popSize];
-        for (int i = 0; i < popSize; i++)
-        {
-            pop_[i] = Organism(mutationFactor_);
-        }
-
-        curGen_ = 0;
-        curOrg_ = 0;
-        changedOrg_ = True;
-	}
-    
-    // TODO: make pop a List<Organism>
-    public int[] Step(double deltaPho, double deltaTh)
-    {
-        if (changedOrg_)
-        {
-            // TODO: Reset robot
+            changedOrg_ = true;
             curStep_ = 0;
             return pop_[curOrg_].getGenes();
+
         }
 
-        if (curGen_ == numGenerations_)
+        private void makeTNG()
         {
-            return bestOrg_.getGenes();
+            Organism[] parents = new Organism[numParents_];
+            pop_.CopyTo((popSize_ - numParents_), parents, 0, numParents_);
+            pop_.Clear();
+
+            Organism baby;
+            int p1;
+            int p2;
+            for (int i = 0; i < popSize_; i++)
+            {
+                p1 = Genetic.rnd_.Next(0, numParents_ -1);
+                do
+                {
+                    p2 = Genetic.rnd_.Next(0, numParents_ -1);
+                } while (p1 == p2);
+                
+                baby = parents[p1].Crossover(parents[p2]);
+                baby.Mutate();
+                pop_.Add(baby);
+            }
         }
-
-        if (curStep_ == maxSteps_)
-        {
-            // update curOrg closest and Farthest values
-        }
-
-        // Cursteps = maxSteps, so calculate and set fitness
-
-        // If this is the last org of the pop, sort by fitness
-        // and update bestOrg, then set curOrg to 0 and create 
-        // new pop using old pop (crossover and mutate)
-
-        // Example Sorting:
-        //List<Order> objListOrder = GetOrderList();
-        //objListOrder.Sort(
-        //    delegate(Order p1, Order p2)
-        //    {
-        //        return p1.OrderDate.CompareTo(p2.OrderDate);
-        //    }
-        //);
-
-        // Otherwise, curOrg_++ 
-
-        changedOrg_ = true;
-
     }
 }

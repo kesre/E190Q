@@ -82,6 +82,14 @@ namespace DrRobot.JaguarControl
         public double accCalib_x = 18;
         public double accCalib_y = 4;
 
+        private static Genetic genAlg_;
+        private int numGenerations = 5; 
+        private int popSize = 100; 
+        private int mutationRate = 10;
+        private int mutationFactor = 10; 
+        private int numParents = 20;
+        private int maxSteps = 500;
+
         #endregion
 
 
@@ -94,6 +102,7 @@ namespace DrRobot.JaguarControl
             jaguarControl = jc;
             realJaguar = jc.realJaguar;
             simulatedJaguar = jc.simulatedJaguar;
+            genAlg_ = new Genetic(numGenerations, popSize, mutationRate, mutationFactor, this, numParents, maxSteps);
             this.Initialize();
 
 
@@ -146,6 +155,12 @@ namespace DrRobot.JaguarControl
         // This function is called from the dialogue window "Reset Button"
         // click function. It resets all variables.
         public void Reset()
+        {
+            genAlg_ = new Genetic(numGenerations, popSize, mutationRate, mutationFactor, this, numParents, maxSteps);
+            InternalReset();
+        }
+
+        public void InternalReset()
         {
             simulatedJaguar.Reset();
             GetFirstEncoderMeasurements();
@@ -512,6 +527,15 @@ namespace DrRobot.JaguarControl
             // motorSignalL. Make sure the robot does not exceed 
             // maxVelocity!!!!!!!!!!!!
 
+
+            // Uncomment this to use genetic Algorithm. (TODO: add a way to view the changing K values.)
+            //double[] newKs = genAlg_.Step(pho, deltaTh);
+            // //Kpho = newKs[0];   // Don't use this for now - Stability is time-expensive!
+            // //Kalpha = newKs[1]; // Don't use this for now - Stability is time-expensive!
+            // //Kbeta = newKs[2];  // Don't use this for now - Stability is time-expensive!
+            //K_p = newKs[3];
+            //K_i = newKs[4];
+            //K_d = newKs[5];
             
             double omegaL, omegaR;
             double dPhiL, dPhiR;

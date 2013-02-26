@@ -82,6 +82,7 @@
     <Compile Include="DrRobotRobotConnection.designer.cs">
       <DependentUpon>DrRobotRobotConnection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Genetic.cs" />
     <Compile Include="GoogleEarth.cs" />
     <Compile Include="IMUGPSComm.cs">
       <SubType>Form</SubType>
