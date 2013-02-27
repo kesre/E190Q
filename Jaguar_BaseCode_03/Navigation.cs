@@ -387,14 +387,14 @@ namespace DrRobot.JaguarControl
             short maxPosOutput = 32767;
 
             // We will use the desiredRotRateRs to set our PWM signals
-            int cur_e_R = desiredRotRateR - ((int)diffEncoderPulseR / deltaT);
-            int cur_e_L = desiredRotRateL - ((int)diffEncoderPulseL / deltaT);
-            int e_dir_R = (int)(cur_e_R - e_R);
-            int e_dir_L = (int)(cur_e_L - e_L);
+            int cur_e_R = desiredRotRateR - ((int)diffEncoderPulseR * 1000 / deltaT);// *1000 for conversion to seconds from milliseconds
+            int cur_e_L = desiredRotRateL - ((int)diffEncoderPulseL * 1000 / deltaT);
+            int e_dir_R = (int)(cur_e_R - e_R) * 1000/ deltaT;
+            int e_dir_L = (int)(cur_e_L - e_L) * 1000 / deltaT;
             e_R = cur_e_R;
             e_L = cur_e_L;
 
-            int maxErr = (int)(3000 / deltaT);
+            int maxErr = (int)(300 / deltaT);
 
 
 
@@ -412,8 +412,8 @@ namespace DrRobot.JaguarControl
             motorSignalL = (short)Math.Min(maxPosOutput, Math.Max(0, (int)motorSignalL));
             motorSignalR = (short)Math.Min(maxPosOutput, Math.Max(0, (int)motorSignalR));
 
-            e_sum_R = Math.Max(-maxErr, Math.Min(0.90 * e_sum_R + e_R * deltaT, maxErr));
-            e_sum_L = Math.Max(-maxErr, Math.Min(0.90 * e_sum_L + e_L * deltaT, maxErr));
+            e_sum_R = Math.Max(-maxErr, Math.Min(0.90 * e_sum_R + e_R * (deltaT / 1000), maxErr));
+            e_sum_L = Math.Max(-maxErr, Math.Min(0.90 * e_sum_L + e_L * (deltaT / 1000), maxErr));
 
         }
 

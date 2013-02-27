@@ -1220,42 +1220,42 @@ namespace DrRobot.JaguarControl
 
         private void k_pho_TextChanged(object sender, EventArgs e)
         {
-            k_pho_next = Convert.ToDouble(k_pho.Text);
+         //   k_pho_next = Convert.ToDouble(k_pho.Text);
         }
 
         private void k_alpha_TextChanged(object sender, EventArgs e)
         {
-            k_alpha_next = Convert.ToDouble(k_alpha.Text);
+          //  k_alpha_next = Convert.ToDouble(k_alpha.Text);
         }
 
         private void k_beta_TextChanged(object sender, EventArgs e)
         {
-            k_beta_next = Convert.ToDouble(k_beta.Text);
+         //   k_beta_next = Convert.ToDouble(k_beta.Text);
         }
 
         private void k_p_TextChanged(object sender, EventArgs e)
         {
-            k_p_next = Convert.ToDouble(k_p.Text);
+         //   k_p_next = Convert.ToDouble(k_p.Text);
         }
 
         private void k_i_TextChanged(object sender, EventArgs e)
         {
-            k_i_next = Convert.ToDouble(k_i.Text);
+          //  k_i_next = Convert.ToDouble(k_i.Text);
         }
 
         private void k_d_TextChanged(object sender, EventArgs e)
         {
-            k_d_next = Convert.ToDouble(k_d.Text);
+         //   k_d_next = Convert.ToDouble(k_d.Text);
         }
 
         private void gain_Set_Button_Click(object sender, EventArgs e)
         {
-            navigation.Kpho = k_pho_next;
-            navigation.Kalpha = k_alpha_next;
-            navigation.Kbeta = k_beta_next;
-            navigation.K_p = k_p_next;
-            navigation.K_i = k_i_next;
-            navigation.K_d = k_d_next;
+            navigation.Kpho = Convert.ToDouble(k_pho.Text);
+            navigation.Kalpha = Convert.ToDouble(k_alpha.Text);
+            navigation.Kbeta = Convert.ToDouble(k_beta.Text);
+            navigation.K_p = Convert.ToDouble(k_p.Text);
+            navigation.K_i = Convert.ToDouble(k_i.Text);
+            navigation.K_d = Convert.ToDouble(k_d.Text);
         }
 
         #endregion
