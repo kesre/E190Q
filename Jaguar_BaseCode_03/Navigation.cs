@@ -42,7 +42,7 @@ namespace DrRobot.JaguarControl
         public bool runThread = true;
         public bool loggingOn;
         StreamWriter logFile;
-        public int deltaT = 10;
+        public int deltaT = 50;
         private static int encoderMax = 32767;
         public static int pulsesPerRotation = 190;
         public static double wheelRadius = 0.089;
@@ -386,15 +386,18 @@ namespace DrRobot.JaguarControl
             short zeroOutput = 16383;
             short maxPosOutput = 32767;
 
+            //desiredRotRateL = 50;
+            //desiredRotRateR = 50;
+
             // We will use the desiredRotRateRs to set our PWM signals
-            int cur_e_R = desiredRotRateR - ((int)diffEncoderPulseR * 1000 / deltaT);// *1000 for conversion to seconds from milliseconds
-            int cur_e_L = desiredRotRateL - ((int)diffEncoderPulseL * 1000 / deltaT);
-            int e_dir_R = (int)(cur_e_R - e_R) * 1000/ deltaT;
-            int e_dir_L = (int)(cur_e_L - e_L) * 1000 / deltaT;
+            double cur_e_R = desiredRotRateR - (diffEncoderPulseR * 1000 / (double)deltaT);// *1000 for conversion to seconds from milliseconds
+            double cur_e_L = desiredRotRateL - (diffEncoderPulseL * 1000 / (double)deltaT);
+            double e_dir_R = (cur_e_R - e_R) * 1000 / (double)deltaT;
+            double e_dir_L = (cur_e_L - e_L) * 1000 / (double)deltaT;
             e_R = cur_e_R;
             e_L = cur_e_L;
 
-            int maxErr = (int)(300 / deltaT);
+            double maxErr = (300 / (double)deltaT);
 
 
 
@@ -405,6 +408,60 @@ namespace DrRobot.JaguarControl
 
             u_R = K_p * e_R + K_i * e_sum_R + K_d * e_dir_R;
             u_L = K_p * e_L + K_i * e_sum_L + K_d * e_dir_L;
+
+            double minSignal = 3000;
+            double maxSignal = 16000;
+            double zeroSignal = 20;
+            double org_u_R = u_R;
+            double org_u_L = u_L;
+
+            double LRRatio = Math.Abs(u_L / u_R);
+
+            if (LRRatio > (maxSignal / minSignal))
+            {
+                u_L = Math.Sign(u_L) *maxSignal;
+                u_R = Math.Sign(u_R) * minSignal;
+            }
+            else if (LRRatio < (minSignal / maxSignal))
+            {
+                u_R = Math.Sign(u_R) * maxSignal;
+                u_L = Math.Sign(u_L) * minSignal;
+            }
+            else if ((Math.Abs(u_L) > maxSignal) || (Math.Abs(u_R) > maxSignal))
+            {
+                if (LRRatio > 1)
+                {
+                    u_L = Math.Sign(u_L) * maxSignal;
+                    u_R = Math.Sign(u_R) * maxSignal / LRRatio;
+                }
+                else
+                {
+                    u_R = Math.Sign(u_R) * maxSignal;
+                    u_L = Math.Sign(u_L) * maxSignal * LRRatio;
+                }
+            }
+            else if ((Math.Abs(u_L) < minSignal) || (Math.Abs(u_R) < minSignal))
+            {
+                if (LRRatio > 1)
+                {
+                    u_R = Math.Sign(u_R) * minSignal;
+                    u_L = Math.Sign(u_L) * minSignal * LRRatio;
+                }
+                else
+                {
+                    u_L = Math.Sign(u_L) * minSignal;
+                    u_R = Math.Sign(u_R) * minSignal / LRRatio;
+                }
+            }
+
+            if (Math.Abs(org_u_L) < zeroSignal)
+            {
+                u_L = 0;
+            }
+            if (Math.Abs(org_u_R) < zeroSignal)
+            {
+                u_R = 0;
+            }
 
             motorSignalL = (short)(zeroOutput + u_L);// (zeroOutput + u_L);
             motorSignalR = (short)(zeroOutput - u_R);//(zeroOutput - u_R);
@@ -542,7 +599,7 @@ namespace DrRobot.JaguarControl
 
             // pho will be negative if the robot should be moving backwards.
             desiredV = Kpho * pho;
-            if (Math.Abs(pho) > .2)
+            if (Math.Abs(pho) > .1)
             {  
                 desiredW = Kalpha * alpha + Kbeta * beta;
             }
