@@ -365,12 +365,14 @@ namespace DrRobot.JaguarControl
 
                 // Get most recent laser scanner measurements
                 laserCounter = laserCounter + deltaT;
-                if (laserCounter >= 2000)
+                if (laserCounter >= 20000)
                 {
-                    for (int i = 0; i < LaserData.Length; i=i+laserStepSize)
-                    {
-                        LaserData[i] = (long)(1000 * map.GetClosestWallDistance(x, y, t -1.57 + laserAngles[i]));
-                    }
+
+                    LaserData[113] = (long)(1000 * map.GetClosestWallDistance(x, y, t - 1.57 + laserAngles[113]));
+                    //for (int i = 0; i < LaserData.Length; i=i+laserStepSize)
+                    //{
+                    //    LaserData[i] = (long)(1000 * map.GetClosestWallDistance(x, y, t -1.57 + laserAngles[i]));
+                    //}
                     laserCounter = 0;
                     newLaserData = true;
                 }
@@ -738,10 +740,6 @@ namespace DrRobot.JaguarControl
 
             // Ensure theta value stays between Pi and -Pi
             t = NormalizeAngle(t);
-
-            x_est = x;
-            y_est = y;
-            t_est = t;
 
             deltaX = desiredX - x_est;
             deltaY = desiredY - y_est;

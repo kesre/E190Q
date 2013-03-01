@@ -115,27 +115,29 @@ namespace DrRobot.JaguarControl
 	        if (t>Math.PI) t -= 2*Math.PI; else if (t<-Math.PI) t += 2*Math.PI;
 
 
-	        // ****************** Additional Student Code: Start ************
+	        // ****************** Additional Student Code: Start ***********
 
-	        // Put code here to calculated dist.
-	        // Calculate slope and intercept
-	        double m = Math.Tan(t);
-	        double b = y - m*x;
+            double slopeR, slopeW, interceptR, interceptW;
+            double xLineIntersect, yLineIntersect;
+            double dotProduct, segmentLenSquare;
 
-	        // Get line intersection
-	        double x_intersect = (b-intercepts[segment])/(slopes[segment]-m);
-	        double y_intersect = m*x_intersect + b;
-	        double angle_intersect = Math.Atan2(y_intersect-y, x_intersect-x);
+            slopeR = Math.Tan(t);
+            slopeW = slopes[segment];
 
-	        // Check to see if intersection LIES within segment
-	        double dist_intersect_corner1 = Math.Sqrt(Math.Pow(x_intersect-X1,2) + Math.Pow(y_intersect-Y1,2));
-	        double dist_intersect_corner2 = Math.Sqrt(Math.Pow(x_intersect-X2,2) + Math.Pow(y_intersect-Y2,2));
-	        if (dist_intersect_corner1 <= segmentSizes[segment] && dist_intersect_corner2 <= segmentSizes[segment] && Math.Abs(t-angle_intersect)<0.01){
-		        dist = Math.Sqrt(Math.Pow(x-x_intersect,2) + Math.Pow(y-y_intersect,2));
-	        }
+            interceptR = y - slopeR * x;
+            interceptW = intercepts[segment];
 
+            xLineIntersect = (interceptR - interceptW) / (slopeW - slopeR);
+            yLineIntersect = slopeR * xLineIntersect + interceptR;
 
+            segmentLenSquare = segmentSizes[segment];
+            dotProduct = (X1 - xLineIntersect) * (X2 - xLineIntersect) + (Y1 - yLineIntersect) * (Y2 - yLineIntersect);
 
+            if ((dotProduct > 0) && (segmentLenSquare > dotProduct))
+            {
+                dist = (xLineIntersect - x) / Math.Cos(t);
+            }
+            
 
 	        // ****************** Additional Student Code: End   ************
 
@@ -149,19 +151,18 @@ namespace DrRobot.JaguarControl
 
         public double GetClosestWallDistance(double x, double y, double t){
 
-	        double minDist = 6.000;
+	        double minDist = 6.000; // This is in meters and the nominal max range of the laser range finder.
 
 	        // ****************** Additional Student Code: Start ************
 
 	        // Put code here that loops through segments, calling the
 	        // function GetWallDistance.
-	        for (int i=0; i<numMapSegments; i++){
-		        double d = GetWallDistance(x, y, t, i);
-		        minDist = Math.Min(minDist, d);
-	        }
-
-
-
+            double nextDistance;
+            for (int i = 0; i < numMapSegments; i++)
+            {//not getting correct values from get wall distance
+                nextDistance = Math.Abs(GetWallDistance(x, y, t, i));
+                minDist = Math.Min(nextDistance, minDist);
+            }
 	        // ****************** Additional Student Code: End   ************
 
 	        return minDist;
