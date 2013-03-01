@@ -16,8 +16,8 @@ namespace DrRobot.JaguarControl
         public double x_est, y_est, t_est;
         public double desiredX, desiredY, desiredT;
         public double deltaX, deltaY, deltaTh;
-        public double pho, alpha, beta;
         private double desiredV, desiredW;
+        public double pho, alpha, beta;
 
         public double currentEncoderPulseL, currentEncoderPulseR;
         public double lastEncoderPulseL, lastEncoderPulseR;
@@ -386,9 +386,6 @@ namespace DrRobot.JaguarControl
             short zeroOutput = 16383;
             short maxPosOutput = 32767;
 
-            //desiredRotRateL = 50;
-            //desiredRotRateR = 50;
-
             // We will use the desiredRotRateRs to set our PWM signals
             double cur_e_R = desiredRotRateR - (diffEncoderPulseR * 1000 / (double)deltaT);// *1000 for conversion to seconds from milliseconds
             double cur_e_L = desiredRotRateL - (diffEncoderPulseL * 1000 / (double)deltaT);
@@ -398,13 +395,6 @@ namespace DrRobot.JaguarControl
             e_L = cur_e_L;
 
             double maxErr = (300 / (double)deltaT);
-
-
-
-            //Kpho = 1.5;
-            //Kalpha = 8;//4
-            //Kbeta = -0.8;//-1.0;
-
 
             u_R = K_p * e_R + K_i * e_sum_R + K_d * e_dir_R;
             u_L = K_p * e_L + K_i * e_sum_L + K_d * e_dir_L;
