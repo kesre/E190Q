@@ -99,6 +99,13 @@ namespace DrRobot.JaguarControl
             {
             }
         }
+        private static Genetic genAlg_;
+        private int numGenerations = 5;
+        private int popSize = 100;
+        private int mutationRate = 10;
+        private int mutationFactor = 10;
+        private int numParents = 20;
+        private int maxSteps = 500;
 
         #endregion
 
@@ -112,6 +119,7 @@ namespace DrRobot.JaguarControl
             jaguarControl = jc;
             realJaguar = jc.realJaguar;
             simulatedJaguar = jc.simulatedJaguar;
+            //genAlg_ = new Genetic(numGenerations, popSize, mutationRate, mutationFactor, this, numParents, maxSteps);
             map = new Map();
             particles = new Particle[numParticles];
             propagatedParticles = new Particle[numParticles];
@@ -179,6 +187,12 @@ namespace DrRobot.JaguarControl
         // This function is called from the dialogue window "Reset Button"
         // click function. It resets all variables.
         public void Reset()
+        {
+            //genAlg_ = new Genetic(numGenerations, popSize, mutationRate, mutationFactor, this, numParents, maxSteps);
+            InternalReset();
+        }
+
+        public void InternalReset()
         {
             simulatedJaguar.Reset();
             GetFirstEncoderMeasurements();
@@ -286,6 +300,7 @@ namespace DrRobot.JaguarControl
             accCalib_x = 0;
             accCalib_y = 0;
             int numMeasurements = 100;
+            // Significantly slows down reset.
             for (int i = 0; i < numMeasurements; i++)
             {
                 accCalib_x += currentAccel_x;
