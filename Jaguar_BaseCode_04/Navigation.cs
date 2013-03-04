@@ -378,16 +378,16 @@ namespace DrRobot.JaguarControl
                 currentEncoderPulseL = simulatedJaguar.GetEncoderPulse4();
                 currentEncoderPulseR = simulatedJaguar.GetEncoderPulse5();
 
-                // Get most recent laser scanner measurements
+                // Get most recent laser scanner measurements every 20 seconds.
                 laserCounter = laserCounter + deltaT;
                 if (laserCounter >= 20000)
                 {
 
-                    LaserData[113] = (long)(1000 * map.GetClosestWallDistance(x, y, t - 1.57 + laserAngles[113]));
-                    //for (int i = 0; i < LaserData.Length; i=i+laserStepSize)
-                    //{
-                    //    LaserData[i] = (long)(1000 * map.GetClosestWallDistance(x, y, t -1.57 + laserAngles[i]));
-                    //}
+                    //LaserData[113] = (long)(1000 * map.GetClosestWallDistance(x, y, t - 1.57 + laserAngles[113]));
+                    for (int i = 0; i < LaserData.Length; i=i+laserStepSize)
+                    {
+                        LaserData[i] = (long)(1000 * map.GetClosestWallDistance(x, y, t -1.57 + laserAngles[i]));
+                    }
                     laserCounter = 0;
                     newLaserData = true;
                 }

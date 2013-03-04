@@ -41,15 +41,15 @@ namespace DrRobot.JaguarControl
             mapSegmentCorners[0, 1, 0] = -3.38 - 5.79 - 3.55 / 2;
             mapSegmentCorners[0, 1, 1] = 2.794;
 
-	        mapSegmentCorners[1,0,0] = -3.55/2;
-	        mapSegmentCorners[1,0,1] = 0.0;
-	        mapSegmentCorners[1,1,0] = -3.55/2;
-	        mapSegmentCorners[1,1,1] = -2.74;
+            mapSegmentCorners[1,0,0] = -3.55/2;
+            mapSegmentCorners[1,0,1] = 0.0;
+            mapSegmentCorners[1,1,0] = -3.55/2;
+            mapSegmentCorners[1,1,1] = -2.74;
 
-	        mapSegmentCorners[2,0,0] = 3.55/2;
-	        mapSegmentCorners[2,0,1] = 0.0;
-	        mapSegmentCorners[2,1,0] = 3.55/2;
-	        mapSegmentCorners[2,1,1] = -2.74;
+            mapSegmentCorners[2,0,0] = 3.55/2;
+            mapSegmentCorners[2,0,1] = 0.0;
+            mapSegmentCorners[2,1,0] = 3.55/2;
+            mapSegmentCorners[2,1,1] = -2.74;
 
             mapSegmentCorners[3, 0, 0] = 3.55/2;
             mapSegmentCorners[3, 0, 1] = 0.0;
@@ -131,14 +131,34 @@ namespace DrRobot.JaguarControl
             yLineIntersect = slopeR * xLineIntersect + interceptR;
 
             segmentLenSquare = segmentSizes[segment];
-            dotProduct = (X1 - xLineIntersect) * (X2 - xLineIntersect) + (Y1 - yLineIntersect) * (Y2 - yLineIntersect);
+            //dotProduct = (X1 - xLineIntersect) * (X2 - xLineIntersect) + (Y1 - yLineIntersect) * (Y2 - yLineIntersect);
 
-            if ((dotProduct > 0) && (segmentLenSquare > dotProduct))
+            //if ((dotProduct > 0) && (segmentLenSquare > dotProduct))
+            //{
+            //    dist = (xLineIntersect - x) / Math.Cos(t);
+            //}
+
+            // Distance to wall.
+            dist = Math.Sqrt(Math.Pow(x - xLineIntersect, 2) + Math.Pow(y - yLineIntersect, 2));
+
+            // Need to make sure wall is in front of laser.
+            // We do this by projecting dist from the robot according to t.
+            // Next we find the distance between that point and the intersection point (should be small if valid).
+            double xProj = x + dist * Math.Cos(t);
+            double yProj = y + dist * Math.Sin(t);
+            double projDist = Math.Sqrt(Math.Pow(xProj - xLineIntersect, 2) + 
+                                        Math.Pow(yProj - yLineIntersect, 2));
+
+            // Need to make sure wall extends to the intersection point.
+            double projWallLen = Math.Sqrt(Math.Pow(xLineIntersect - (X1 + X2) / 2, 2) +
+                                           Math.Pow(yLineIntersect - (Y1 + Y2) / 2, 2));
+
+            // Dist is invalid if it's too long, the projected point is far from the predicted intersection, 
+            // or the predicted intersection is not along the wall.
+            if (dist > 9999 || Math.Abs(projDist) > Math.Abs(dist) || projWallLen > (segmentLenSquare / 2))
             {
-                dist = (xLineIntersect - x) / Math.Cos(t);
+                dist = 9999;
             }
-            
-
 	        // ****************** Additional Student Code: End   ************
 
 	        return dist;
@@ -158,10 +178,18 @@ namespace DrRobot.JaguarControl
 	        // Put code here that loops through segments, calling the
 	        // function GetWallDistance.
             double nextDistance;
+
+            // Keep track of which segment we got our distance from for debugging purposes.
+            double segment = 0;
+
             for (int i = 0; i < numMapSegments; i++)
-            {//not getting correct values from get wall distance
+            {
                 nextDistance = Math.Abs(GetWallDistance(x, y, t, i));
-                minDist = Math.Min(nextDistance, minDist);
+                if (nextDistance < minDist)
+                {
+                    segment = i;
+                    minDist = nextDistance;
+                }
             }
 	        // ****************** Additional Student Code: End   ************
 
