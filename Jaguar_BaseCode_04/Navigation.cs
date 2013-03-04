@@ -80,7 +80,7 @@ namespace DrRobot.JaguarControl
         // PF Variables
         public Map map;
         public Particle[] particles;
-        public Particle[] propagatedParticles;
+        public List<Particle> propagatedParticles;
         public int numParticles = 1000;
         public double K_wheelRandomness = 0.15;//0.25
         public Random random = new Random();
@@ -122,12 +122,12 @@ namespace DrRobot.JaguarControl
             //genAlg_ = new Genetic(numGenerations, popSize, mutationRate, mutationFactor, this, numParents, maxSteps);
             map = new Map();
             particles = new Particle[numParticles];
-            propagatedParticles = new Particle[numParticles];
+            propagatedParticles = new List<Particle>(numParticles);
             // Create particles
             for (int i = 0; i < numParticles; i++)
             {
                 particles[i] = new Particle();
-                propagatedParticles[i] = new Particle();
+                propagatedParticles.Add(new Particle());
             }
 
             this.Initialize();
@@ -802,7 +802,17 @@ namespace DrRobot.JaguarControl
             // Put code here to calculate x_est, y_est, t_est using a PF
 
             x_est = 0; y_est = 0; t_est = 0;
+            
 
+            for (int p = 0; p < numParticles; p++)
+            {
+                propagatedParticles[p].x = particles[p].x + distanceTravelled * Math.Cos(t + 0.5 * angleTravelled);
+                propagatedParticles[p].y = particles[p].y + distanceTravelled * Math.Sin(t + 0.5 * angleTravelled);
+                propagatedParticles[p].t = particles[p].t + angleTravelled;
+                propagatedParticles[p].w = CalculateWeight(p);
+            }
+
+            // TODO: Update Particle Pool (sort propogated Particles, cull based on entropy accumulated (maybe?))
 
             // ****************** Additional Student Code: End   ************
 
@@ -814,15 +824,20 @@ namespace DrRobot.JaguarControl
         // with the particle.
         // This function should calculate the weight associated with particle p.
 
-        void CalculateWeight(int p)
+        double CalculateWeight(int p)
         {
+            // ****************** Additional Student Code: Start ************
 	        double weight = 0;
+            double currentDistance = 0;
+            for (int i = 0; i < LaserData.Length; i = i + laserStepSize)
+            {
+                currentDistance = (1000 * map.GetClosestWallDistance(propagatedParticles[p].x, 
+                                                                     propagatedParticles[p].y, 
+                                                                     propagatedParticles[p].t - 1.57 + laserAngles[i]));
+                weight += 100 - Math.Abs(LaserData[i] - currentDistance);
+            }
 
-	        // ****************** Additional Student Code: Start ************
-
-	        // Put code here to calculated weight. Feel free to use the
-	        // function map.GetClosestWallDistance from Map.cs.
-
+            return weight;
         }
 
 
@@ -860,8 +875,12 @@ namespace DrRobot.JaguarControl
             // particles[p]. Feel free to use the random.NextDouble() function. 
 	        // It might be helpful to use boundaries defined in the
 	        // Map.cs file (e.g. map.minX)
-	        
-
+            double xRange = map.maxX - map.minX;
+            double yRange = map.maxY - map.minY;
+            double tRange = 2 * Math.PI;
+            particles[p].x = random.NextDouble() * xRange + map.minX;
+            particles[p].y = random.NextDouble() * yRange + map.minY;
+            particles[p].t = random.NextDouble() * tRange - Math.PI;
 
 
             // ****************** Additional Student Code: End   ************
