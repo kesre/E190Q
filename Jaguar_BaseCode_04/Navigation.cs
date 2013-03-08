@@ -378,9 +378,9 @@ namespace DrRobot.JaguarControl
                 currentEncoderPulseL = simulatedJaguar.GetEncoderPulse4();
                 currentEncoderPulseR = simulatedJaguar.GetEncoderPulse5();
 
-                // Get most recent laser scanner measurements every 20 seconds.
+                // Get most recent laser scanner measurements every 2 seconds.
                 laserCounter = laserCounter + deltaT;
-                if (laserCounter >= 20000)
+                if (laserCounter >= 2000)
                 {
 
                     //LaserData[113] = (long)(1000 * map.GetClosestWallDistance(x, y, t - 1.57 + laserAngles[113]));
@@ -806,13 +806,73 @@ namespace DrRobot.JaguarControl
 
             for (int p = 0; p < numParticles; p++)
             {
-                propagatedParticles[p].x = particles[p].x + distanceTravelled * Math.Cos(t + 0.5 * angleTravelled);
-                propagatedParticles[p].y = particles[p].y + distanceTravelled * Math.Sin(t + 0.5 * angleTravelled);
+                propagatedParticles[p].x = particles[p].x + distanceTravelled * Math.Cos(particles[p].t + 0.5 * angleTravelled);
+                propagatedParticles[p].y = particles[p].y + distanceTravelled * Math.Sin(particles[p].t + 0.5 * angleTravelled);
                 propagatedParticles[p].t = particles[p].t + angleTravelled;
-                propagatedParticles[p].w = CalculateWeight(p);
+                if (newLaserData)
+                {
+                    // We will evaluate newLaserData later in this function.
+                    propagatedParticles[p].w = CalculateWeight(propagatedParticles[p]);
+                }
             }
+            
 
             // TODO: Update Particle Pool (sort propogated Particles, cull based on entropy accumulated (maybe?))
+            //propagatedParticles.Sort(
+            //    delegate(Particle p1, Particle p2)
+            //        {
+            //            return p1.w.CompareTo(p2.w);
+            //        }
+            //);
+
+            double propMax = 0;
+            for (int i = 0; i < numParticles; i++)
+            {
+                propMax = Math.Max(propMax, propagatedParticles[i].w);
+            }
+
+            if (newLaserData)
+            {
+                newLaserData = false;
+                List<Particle> temp = new List<Particle>(numParticles);
+                int maxOccur = 4;
+                double occur = 0;
+                int templen = 0;
+
+                // Populate selection pool based on 'fitness'
+                for (int i = 0; i < numParticles; i++)
+                {
+                    occur = (propagatedParticles[i].w * maxOccur) / propMax;
+                    for (int j = 0; j < (int)occur; j++)
+                    {
+                        temp.Add(propagatedParticles[i]);
+                        templen++;
+                    }
+                }
+                      
+                if (templen > 0)
+                {
+                    // Add in new random particles.
+                    Particle p;
+                    for (int i = 0; i < numParticles / 10; i++)
+                    {
+                        p = new Particle();
+                        SetRandomPos(p);
+                        temp.Add(p);
+                        templen++;
+                    }
+
+                    // Choose new Population
+                    for (int i = 0; i < numParticles; i++)
+                    {
+                        particles[i] = temp[random.Next(0, templen)];
+                    }
+                }
+            }
+            else
+            {
+                particles = propagatedParticles.ToArray();
+            }
 
             // ****************** Additional Student Code: End   ************
 
@@ -824,17 +884,15 @@ namespace DrRobot.JaguarControl
         // with the particle.
         // This function should calculate the weight associated with particle p.
 
-        double CalculateWeight(int p)
+        double CalculateWeight(Particle p)
         {
             // ****************** Additional Student Code: Start ************
-	        double weight = 0;
+            double weight = 0;
             double currentDistance = 0;
             for (int i = 0; i < LaserData.Length; i = i + laserStepSize)
             {
-                currentDistance = (1000 * map.GetClosestWallDistance(propagatedParticles[p].x, 
-                                                                     propagatedParticles[p].y, 
-                                                                     propagatedParticles[p].t - 1.57 + laserAngles[i]));
-                weight += 100 - Math.Abs(LaserData[i] - currentDistance);
+                currentDistance = (1000 * map.GetClosestWallDistance(p.x, p.y, p.t - 1.57 + laserAngles[i]));
+                weight += Math.Max((6000 - Math.Abs(LaserData[i] - currentDistance)), 0) / LaserData.Length;
             }
 
             return weight;
@@ -854,9 +912,9 @@ namespace DrRobot.JaguarControl
 
 		        // Either set the particles at known start position [0 0 0],  
 		        // or set particles at random locations.
-		        SetRandomPos(i);
-		        //SetStartPos(i);
+		        SetRandomPos(particles[i]);
 	        }
+            SetStartPos(particles[0]);
             
         }
 
@@ -867,7 +925,7 @@ namespace DrRobot.JaguarControl
         // in the environement. Should work for rectangular environments to make 
         // things easier.
 
-        void SetRandomPos(int p){
+        void SetRandomPos(Particle p){
 
 	        // ****************** Additional Student Code: Start ************
 
@@ -878,9 +936,9 @@ namespace DrRobot.JaguarControl
             double xRange = map.maxX - map.minX;
             double yRange = map.maxY - map.minY;
             double tRange = 2 * Math.PI;
-            particles[p].x = random.NextDouble() * xRange + map.minX;
-            particles[p].y = random.NextDouble() * yRange + map.minY;
-            particles[p].t = random.NextDouble() * tRange - Math.PI;
+            p.x = random.NextDouble() * xRange + map.minX;
+            p.y = random.NextDouble() * yRange + map.minY;
+            p.t = random.NextDouble() * tRange - Math.PI;
 
 
             // ****************** Additional Student Code: End   ************
@@ -890,10 +948,10 @@ namespace DrRobot.JaguarControl
 
 
         // For particle p, this function will select a start predefined position. 
-        void SetStartPos(int p){
-	        particles[p].x = initialX;
-	        particles[p].y = initialY;
-	        particles[p].t = initialT;
+        void SetStartPos(Particle p){
+	        p.x = initialX;
+	        p.y = initialY;
+	        p.t = initialT;
         }
 
 
