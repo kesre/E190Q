@@ -11,7 +11,7 @@ namespace DrRobot.JaguarControl
     {
         #region Navigation Variables
         public long[] LaserData = new long[DrRobot.JaguarControl.JaguarCtrl.DISDATALEN];
-        public double initialX, initialY, initialT;
+        public double initialX = 0, initialY = 0, initialT = 0;
         public double x, y, t;
         public double x_est, y_est, t_est;
         public double desiredX, desiredY, desiredT;
@@ -31,6 +31,7 @@ namespace DrRobot.JaguarControl
 
         public int robotType, controllerType;
         enum ROBOT_TYPE { SIMULATED, REAL };
+
         enum CONTROLLERTYPE { MANUALCONTROL, POINTTRACKER, EXPERIMENT };
         public bool motionPlanRequired, displayParticles, displayNodes, displaySimRobot;
         private JaguarCtrl jaguarControl;
@@ -801,14 +802,14 @@ namespace DrRobot.JaguarControl
 
             // Put code here to calculate x_est, y_est, t_est using a PF
 
-            x_est = 0; y_est = 0; t_est = 0;
+           // x_est = 0; y_est = 0; t_est = 0;
             
 
             for (int p = 0; p < numParticles; p++)
             {
-                propagatedParticles[p].x = particles[p].x + distanceTravelled * Math.Cos(particles[p].t + 0.5 * angleTravelled);
-                propagatedParticles[p].y = particles[p].y + distanceTravelled * Math.Sin(particles[p].t + 0.5 * angleTravelled);
-                propagatedParticles[p].t = particles[p].t + angleTravelled;
+                propagatedParticles[p].x = particles[p].x + distanceTravelled * Math.Cos(particles[p].t + 0.5 * angleTravelled) +random.NextDouble() * distanceTravelled;
+                propagatedParticles[p].y = particles[p].y + distanceTravelled * Math.Sin(particles[p].t + 0.5 * angleTravelled) +random.NextDouble() * distanceTravelled;
+                propagatedParticles[p].t = particles[p].t + angleTravelled +random.NextDouble() * angleTravelled;
                 if (newLaserData)
                 {
                     // We will evaluate newLaserData later in this function.
@@ -874,6 +875,20 @@ namespace DrRobot.JaguarControl
                 particles = propagatedParticles.ToArray();
             }
 
+            double xSum = 0, ySum = 0, tSum = 0, totalWeight = 0;
+
+            for (int i = 0; i < numParticles; i++)
+            {
+                xSum += particles[i].x * particles[i].w;
+                ySum += particles[i].y * particles[i].w;
+                tSum += particles[i].t * particles[i].w;
+                totalWeight += particles[i].w;
+            }
+
+            x_est = xSum / totalWeight;
+            y_est = ySum / totalWeight;
+            t_est = tSum / totalWeight;
+
             // ****************** Additional Student Code: End   ************
 
         }
@@ -892,7 +907,7 @@ namespace DrRobot.JaguarControl
             for (int i = 0; i < LaserData.Length; i = i + laserStepSize)
             {
                 currentDistance = (1000 * map.GetClosestWallDistance(p.x, p.y, p.t - 1.57 + laserAngles[i]));
-                weight += Math.Max((6000 - Math.Abs(LaserData[i] - currentDistance)), 0) / LaserData.Length;
+                weight += Math.Max((6000 - Math.Abs(LaserData[i] - currentDistance)), 0) / ((LaserData.Length / laserStepSize) * 6000);
             }
 
             return weight;
@@ -912,9 +927,9 @@ namespace DrRobot.JaguarControl
 
 		        // Either set the particles at known start position [0 0 0],  
 		        // or set particles at random locations.
-		        SetRandomPos(particles[i]);
+		        //SetRandomPos(particles[i]);
+                SetStartPos(particles[i]);
 	        }
-            SetStartPos(particles[0]);
             
         }
 
@@ -939,6 +954,7 @@ namespace DrRobot.JaguarControl
             p.x = random.NextDouble() * xRange + map.minX;
             p.y = random.NextDouble() * yRange + map.minY;
             p.t = random.NextDouble() * tRange - Math.PI;
+            p.w = random.NextDouble();
 
 
             // ****************** Additional Student Code: End   ************
