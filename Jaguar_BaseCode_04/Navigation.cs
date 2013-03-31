@@ -807,9 +807,12 @@ namespace DrRobot.JaguarControl
 
             for (int p = 0; p < numParticles; p++)
             {
-                propagatedParticles[p].x = particles[p].x + distanceTravelled * Math.Cos(particles[p].t + 0.5 * angleTravelled) +random.NextDouble() * distanceTravelled;
-                propagatedParticles[p].y = particles[p].y + distanceTravelled * Math.Sin(particles[p].t + 0.5 * angleTravelled) +random.NextDouble() * distanceTravelled;
-                propagatedParticles[p].t = particles[p].t + angleTravelled +random.NextDouble() * angleTravelled;
+                propagatedParticles[p].x = particles[p].x + distanceTravelled * Math.Cos(particles[p].t + 0.5 * angleTravelled) + 
+                    (random.NextDouble() - .5) * distanceTravelled;
+                propagatedParticles[p].y = particles[p].y + distanceTravelled * Math.Sin(particles[p].t + 0.5 * angleTravelled) + 
+                    (random.NextDouble() - .5) * distanceTravelled;
+                propagatedParticles[p].t = particles[p].t + angleTravelled + 
+                    (random.NextDouble() - .5) * angleTravelled;
                 if (newLaserData)
                 {
                     // We will evaluate newLaserData later in this function.
@@ -907,7 +910,10 @@ namespace DrRobot.JaguarControl
             for (int i = 0; i < LaserData.Length; i = i + laserStepSize)
             {
                 currentDistance = (1000 * map.GetClosestWallDistance(p.x, p.y, p.t - 1.57 + laserAngles[i]));
-                weight += Math.Max((6000 - Math.Abs(LaserData[i] - currentDistance)), 0) / ((LaserData.Length / laserStepSize) * 6000);
+                if (currentDistance < 5000)
+                {
+                    weight += Math.Max((6000 - Math.Abs(LaserData[i] - currentDistance)), 0) / ((LaserData.Length / laserStepSize) * 6000);
+                }
             }
 
             return weight;
