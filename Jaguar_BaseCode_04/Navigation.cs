@@ -108,6 +108,11 @@ namespace DrRobot.JaguarControl
         private int numParents = 20;
         private int maxSteps = 500;
 
+        // Circle
+        private double rotAngle = 0.34906585;
+        private double centerX = 0;
+        private double centerY = 0;
+
         #endregion
 
 
@@ -649,8 +654,34 @@ namespace DrRobot.JaguarControl
             // ****************** Additional Student Code: End   ************
         }
 
+        // This function is called to determine and circle a target
+        private void circleTarget()
+        {
+            // Calculate new destination.
+            desiredX = centerX + Math.Cos(rotAngle) * (x_est - centerX) - 
+                        Math.Sin(rotAngle) * (y_est - centerY);
+            desiredY = centerY + Math.Sin(rotAngle) * (x_est - centerX) +
+                        Math.Cos(rotAngle) * (y_est - centerY);
+            desiredT = t_est - rotAngle;
 
+            // Calculate movement based on destination as usual.
+            deltaX = desiredX - x_est;
+            deltaY = desiredY - y_est;
+            deltaTh = NormalizeAngle(desiredT - t_est);
 
+            pho = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+            alpha = NormalizeAngle(-t_est + Math.Atan2(deltaY, deltaX));
+
+            if (Math.Abs(alpha) > Math.PI / 2)
+            {
+                alpha = NormalizeAngle(-t_est + Math.Atan2(-deltaY, -deltaX));
+                pho *= -1;
+            }
+
+            beta = NormalizeAngle(deltaTh - alpha);
+            FlyToSetPoint();
+        }
+        
         // THis function is called to follow a trajectory constructed by PRMMotionPlanner()
         private void TrackTrajectory()
         {
