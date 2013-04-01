@@ -812,7 +812,7 @@ namespace DrRobot.JaguarControl
                 propagatedParticles[p].y = particles[p].y + distanceTravelled * Math.Sin(particles[p].t + 0.5 * angleTravelled) + 
                     (random.NextDouble() - .5) * distanceTravelled;
                 propagatedParticles[p].t = particles[p].t + angleTravelled + 
-                    (random.NextDouble() - .5) * angleTravelled;
+                    (random.NextDouble() - .5) * 0.5*angleTravelled;
                 if (newLaserData)
                 {
                     // We will evaluate newLaserData later in this function.
@@ -839,7 +839,7 @@ namespace DrRobot.JaguarControl
             {
                 newLaserData = false;
                 List<Particle> temp = new List<Particle>(numParticles);
-                int maxOccur = 4;
+                int maxOccur = 8;
                 double occur = 0;
                 int templen = 0;
 
@@ -858,7 +858,7 @@ namespace DrRobot.JaguarControl
                 {
                     // Add in new random particles.
                     Particle p;
-                    for (int i = 0; i < numParticles / 10; i++)
+                    for (int i = 0; i < numParticles / 5; i++)
                     {
                         p = new Particle();
                         SetRandomPos(p);
@@ -915,7 +915,7 @@ namespace DrRobot.JaguarControl
                     weight += Math.Max((6000 - Math.Abs(LaserData[i] - currentDistance)), 0) / ((LaserData.Length / laserStepSize) * 6000);
                 }
             }
-
+            weight = Math.Exp(10 * weight);
             return weight;
         }
 
@@ -933,8 +933,8 @@ namespace DrRobot.JaguarControl
 
 		        // Either set the particles at known start position [0 0 0],  
 		        // or set particles at random locations.
-		        //SetRandomPos(particles[i]);
-                SetStartPos(particles[i]);
+		        SetRandomPos(particles[i]);
+                //SetStartPos(particles[i]);
 	        }
             
         }
