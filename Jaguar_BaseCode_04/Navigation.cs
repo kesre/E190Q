@@ -408,6 +408,13 @@ namespace DrRobot.JaguarControl
                     currentEncoderPulseL = jaguarControl.realJaguar.GetEncoderPulse4();
                     currentEncoderPulseR = jaguarControl.realJaguar.GetEncoderPulse5();
 
+                    laserCounter = laserCounter + deltaT;
+                    if (laserCounter >= 2000)
+                    {
+                        laserCounter = 0;
+                        newLaserData = true;
+                    }
+
                 }
                 catch (Exception e)
                 {
@@ -808,11 +815,11 @@ namespace DrRobot.JaguarControl
             for (int p = 0; p < numParticles; p++)
             {
                 propagatedParticles[p].x = particles[p].x + distanceTravelled * Math.Cos(particles[p].t + 0.5 * angleTravelled) + 
-                    (random.NextDouble() - .5) * distanceTravelled;
+                    (random.NextDouble() - .5) * 2 * distanceTravelled;
                 propagatedParticles[p].y = particles[p].y + distanceTravelled * Math.Sin(particles[p].t + 0.5 * angleTravelled) + 
                     (random.NextDouble() - .5) * distanceTravelled;
                 propagatedParticles[p].t = particles[p].t + angleTravelled + 
-                    (random.NextDouble() - .5) * 0.5*angleTravelled;
+                    (random.NextDouble() - .5) * 3 * angleTravelled;
                 if (newLaserData)
                 {
                     // We will evaluate newLaserData later in this function.
@@ -933,8 +940,8 @@ namespace DrRobot.JaguarControl
 
 		        // Either set the particles at known start position [0 0 0],  
 		        // or set particles at random locations.
-		        SetRandomPos(particles[i]);
-                //SetStartPos(particles[i]);
+		        //SetRandomPos(particles[i]);
+                SetStartPos(particles[i]);
 	        }
             
         }
