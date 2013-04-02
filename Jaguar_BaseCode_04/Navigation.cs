@@ -91,10 +91,13 @@ namespace DrRobot.JaguarControl
         public double[] laserAngles;
         private int laserCounter;
         private int laserStepSize = 3;
+        private int laserTimer = 500;
+        private bool addRandomParticles = true;
 
         public class Particle
         {
             public double x, y, t, w;
+            public bool isRand;
 
             public Particle()
             {
@@ -381,7 +384,7 @@ namespace DrRobot.JaguarControl
 
                 // Get most recent laser scanner measurements every 2 seconds.
                 laserCounter = laserCounter + deltaT;
-                if (laserCounter >= 2000)
+                if (laserCounter >= laserTimer)
                 {
 
                     //LaserData[113] = (long)(1000 * map.GetClosestWallDistance(x, y, t - 1.57 + laserAngles[113]));
@@ -409,7 +412,7 @@ namespace DrRobot.JaguarControl
                     currentEncoderPulseR = jaguarControl.realJaguar.GetEncoderPulse5();
 
                     laserCounter = laserCounter + deltaT;
-                    if (laserCounter >= 2000)
+                    if (laserCounter >= laserTimer)
                     {
                         laserCounter = 0;
                         newLaserData = true;
@@ -820,6 +823,7 @@ namespace DrRobot.JaguarControl
                     (random.NextDouble() - .5) * distanceTravelled;
                 propagatedParticles[p].t = particles[p].t + angleTravelled + 
                     (random.NextDouble() - .5) * 3 * angleTravelled;
+                propagatedParticles[p].isRand = particles[p].isRand;
                 if (newLaserData)
                 {
                     // We will evaluate newLaserData later in this function.
@@ -846,22 +850,29 @@ namespace DrRobot.JaguarControl
             {
                 newLaserData = false;
                 List<Particle> temp = new List<Particle>(numParticles);
-                int maxOccur = 8;
-                double occur = 0;
+                int maxOccur = 5;
+                int occur = 0;
                 int templen = 0;
 
                 // Populate selection pool based on 'fitness'
                 for (int i = 0; i < numParticles; i++)
                 {
-                    occur = (propagatedParticles[i].w * maxOccur) / propMax;
-                    for (int j = 0; j < (int)occur; j++)
+                    occur = (int) ((propagatedParticles[i].w * maxOccur) / propMax);
+
+                    for (int j = 0; j < occur; j++)
                     {
+                        // Since occur isn't 0, there is a weight argument that the particle
+                        // isn't completely random. Thus we'll use it to calculate our estimated
+                        // position.
+                        propagatedParticles[i].isRand = false;
+
+                        // Add it for selection
                         temp.Add(propagatedParticles[i]);
                         templen++;
                     }
                 }
                       
-                if (templen > 0)
+                if (addRandomParticles && templen < (maxOccur/2) * numParticles )
                 {
                     // Add in new random particles.
                     Particle p;
@@ -872,7 +883,10 @@ namespace DrRobot.JaguarControl
                         temp.Add(p);
                         templen++;
                     }
-
+                }
+                
+                if (templen > 0)
+                {
                     // Choose new Population
                     for (int i = 0; i < numParticles; i++)
                     {
@@ -889,10 +903,14 @@ namespace DrRobot.JaguarControl
 
             for (int i = 0; i < numParticles; i++)
             {
-                xSum += particles[i].x * particles[i].w;
-                ySum += particles[i].y * particles[i].w;
-                tSum += particles[i].t * particles[i].w;
-                totalWeight += particles[i].w;
+                if (!particles[i].isRand)
+                {
+                    xSum += particles[i].x * particles[i].w;
+                    ySum += particles[i].y * particles[i].w;
+                    tSum += particles[i].t * particles[i].w;
+                    totalWeight += particles[i].w;
+                }
+                
             }
 
             x_est = xSum / totalWeight;
@@ -915,11 +933,12 @@ namespace DrRobot.JaguarControl
             double weight = 0;
             double currentDistance = 0;
             for (int i = 0; i < LaserData.Length; i = i + laserStepSize)
-            {
-                currentDistance = (1000 * map.GetClosestWallDistance(p.x, p.y, p.t - 1.57 + laserAngles[i]));
-                if (currentDistance < 5000)
+            { 
+                if (LaserData[i] < 5000)
                 {
-                    weight += Math.Max((6000 - Math.Abs(LaserData[i] - currentDistance)), 0) / ((LaserData.Length / laserStepSize) * 6000);
+                    currentDistance = (1000 * map.GetClosestWallDistance(p.x, p.y, p.t - 1.57 + laserAngles[i]));
+                    weight += Math.Max((5000 - Math.Abs(LaserData[i] - currentDistance)), 0) / 
+                        ((LaserData.Length / laserStepSize) * 6000);
                 }
             }
             weight = Math.Exp(10 * weight);
@@ -940,8 +959,15 @@ namespace DrRobot.JaguarControl
 
 		        // Either set the particles at known start position [0 0 0],  
 		        // or set particles at random locations.
-		        //SetRandomPos(particles[i]);
-                SetStartPos(particles[i]);
+
+                if (addRandomParticles)
+                {
+                    SetRandomPos(particles[i]);
+                }
+                else
+                {
+                    SetStartPos(particles[i]);
+                }
 	        }
             
         }
@@ -967,6 +993,7 @@ namespace DrRobot.JaguarControl
             p.x = random.NextDouble() * xRange + map.minX;
             p.y = random.NextDouble() * yRange + map.minY;
             p.t = random.NextDouble() * tRange - Math.PI;
+            p.isRand = true;
             p.w = random.NextDouble();
 
 
