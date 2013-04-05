@@ -814,18 +814,29 @@ namespace DrRobot.JaguarControl
 
            // x_est = 0; y_est = 0; t_est = 0;
             double leftWheelRand, rightWheelRand, randDistTravelled, randAngleTravelled;
+            double u1, u2, u3, u4, u5, u6, norm1, norm2, norm3;
 
             for (int p = 0; p < numParticles; p++)
             {
-                leftWheelRand = wheelDistanceL + (random.NextDouble() - .5) * wheelDistanceL * 0.5;
-                rightWheelRand = wheelDistanceR + (random.NextDouble() - .5) * wheelDistanceR * 0.5;
+                u1 = random.NextDouble(); //these are uniform(0,1) random doubles
+                u2 = random.NextDouble();
+                u3 = random.NextDouble();
+                u4 = random.NextDouble();
+                u5 = random.NextDouble();
+                u6 = random.NextDouble();
+                norm1 = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)
+                norm2 = Math.Sqrt(-2.0 * Math.Log(u3)) * Math.Sin(2.0 * Math.PI * u4); //random normal(0,1)
+                norm3 = Math.Sqrt(-2.0 * Math.Log(u5)) * Math.Sin(2.0 * Math.PI * u6); //random normal(0,1)
+
+                leftWheelRand = wheelDistanceL + norm1 * wheelDistanceL * 0.5;
+                rightWheelRand = wheelDistanceR + norm2 * wheelDistanceR * 0.5;
                 randDistTravelled = (leftWheelRand + rightWheelRand) / 2;
                 randAngleTravelled = (rightWheelRand - leftWheelRand) / (2 * wheelRadius);
 
                 propagatedParticles[p].x = particles[p].x + randDistTravelled * Math.Cos(particles[p].t + 0.5 * randAngleTravelled);
                 propagatedParticles[p].y = particles[p].y + randDistTravelled * Math.Sin(particles[p].t + 0.5 * randAngleTravelled);
                 //propagatedParticles[p].t = NormalizeAngle(particles[p].t + randAngleTravelled);
-                propagatedParticles[p].t = particles[p].t + angleTravelled + (random.NextDouble() - .5) * angleTravelled;
+                propagatedParticles[p].t = particles[p].t + angleTravelled + norm3 * angleTravelled;
                 propagatedParticles[p].isRand = particles[p].isRand;
                 if (newLaserData)
                 {
@@ -879,7 +890,7 @@ namespace DrRobot.JaguarControl
                 //{
                     // Add in new random particles.
                     Particle p;
-                    for (int i = 0; i < numParticles / 10; i++)
+                    for (int i = 0; i < numParticles / 5; i++)
                     {
                         p = new Particle();
                         SetRandomPos(p);
@@ -940,12 +951,12 @@ namespace DrRobot.JaguarControl
                 if (LaserData[i] < 5000)
                 {
                     currentDistance = (1000 * map.GetClosestWallDistance(p.x, p.y, p.t - 1.57 + laserAngles[i]));
-                    weight += Math.Max((5000 - Math.Abs(LaserData[i] - currentDistance)), 0) / 
-                        ((LaserData.Length / laserStepSize) * 6000);
-                    //weight += Math.Exp(- Math.Pow(LaserData[i] - currentDistance, 2));
+                    //weight += Math.Max((5000 - Math.Abs(LaserData[i] - currentDistance)), 0) / 
+                      //  ((LaserData.Length / laserStepSize) * 6000);
+                    weight += Math.Exp(- Math.Pow((LaserData[i] - currentDistance)/100, 2));
                 }
             }
-            weight = Math.Exp(10 * weight);
+            //weight = Math.Exp(10 * weight);
             return weight;
         }
 
