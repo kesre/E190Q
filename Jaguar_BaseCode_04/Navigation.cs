@@ -92,7 +92,7 @@ namespace DrRobot.JaguarControl
         private int laserCounter;
         private int laserStepSize = 3;
         private int laserTimer = 500;
-        private bool addRandomParticles = false;
+        private bool addRandomParticles = true;
 
         public class Particle
         {
@@ -948,7 +948,7 @@ namespace DrRobot.JaguarControl
             double currentDistance = 0;
             for (int i = 0; i < LaserData.Length; i = i + laserStepSize)
             { 
-                if (LaserData[i] < 5000)
+                if ((LaserData[i] < 5000) && (LaserData[i] > 200))
                 {
                     currentDistance = (1000 * map.GetClosestWallDistance(p.x, p.y, p.t - 1.57 + laserAngles[i]));
                     //weight += Math.Max((5000 - Math.Abs(LaserData[i] - currentDistance)), 0) / 
