@@ -93,6 +93,7 @@ namespace DrRobot.JaguarControl
         private int laserStepSize = 3;
         private int laserTimer = 500;
         private bool addRandomParticles = true;
+        //private bool addRandomParticles = false;
 
         public class Particle
         {
@@ -838,7 +839,7 @@ namespace DrRobot.JaguarControl
                 //propagatedParticles[p].t = NormalizeAngle(particles[p].t + randAngleTravelled);
                 propagatedParticles[p].t = particles[p].t + angleTravelled + norm3 * angleTravelled;
                 propagatedParticles[p].isRand = particles[p].isRand;
-                if (newLaserData)
+                if (newLaserData && ((Math.Abs(wheelDistanceL) > 0) || (Math.Abs(wheelDistanceR) > 0)))
                 {
                     // We will evaluate newLaserData later in this function.
                     propagatedParticles[p].w = CalculateWeight(propagatedParticles[p]);
@@ -860,7 +861,7 @@ namespace DrRobot.JaguarControl
                 propMax = Math.Max(propMax, propagatedParticles[i].w);
             }
 
-            if (newLaserData)
+            if (newLaserData && ((Math.Abs(wheelDistanceL) > 0) || (Math.Abs(wheelDistanceR) > 0)))
             {
                 newLaserData = false;
                 List<Particle> temp = new List<Particle>(numParticles);
