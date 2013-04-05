@@ -574,8 +574,8 @@ namespace DrRobot.JaguarControl
             {
                 TimeSpan ts = DateTime.Now - startTime;
                 time = ts.TotalSeconds;
-                 String newData = time.ToString() + " " + x.ToString() + " " + y.ToString() + " " + t.ToString() ;
-
+                 //String newData = time.ToString() + " " + x.ToString() + " " + y.ToString() + " " + t.ToString() ;
+                 String newData = time.ToString() + " " + (Math.Abs(Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2)) - Math.Sqrt(Math.Pow(x_est, 2) + Math.Pow(y_est, 2)))).ToString();
                 logFile.WriteLine(newData);
             }
         }
