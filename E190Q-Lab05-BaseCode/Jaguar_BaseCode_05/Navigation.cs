@@ -89,7 +89,7 @@ namespace DrRobot.JaguarControl
         public double[] laserAngles;
         private int laserCounter;
         private int laserStepSize = 3;
-        private int laserTimer = 500;
+        private int laserTimer = 5000;
         private bool addRandomParticles = false;
 
         public class Particle
@@ -710,7 +710,7 @@ namespace DrRobot.JaguarControl
                 trajCurrentNode++;
                 x_des = trajList[trajCurrentNode].x;
                 y_des = trajList[trajCurrentNode].y;
-                t_des = 0;
+                t_des = Math.Atan2(y_des - y, x_des - x);
             }
 
             FlyToSetPoint();
@@ -739,32 +739,55 @@ namespace DrRobot.JaguarControl
 
 
             // Create and add the start Node
-
+            Node startNode = new Node(x_est, y_est, 0, 0);
+            AddNode(startNode);
 
             // Create the goal node
-
+            Node goalNode = new Node(desiredX, desiredY, 0, 0);
 
             // Loop until path created
             bool pathFound = false;
             int maxIterations = maxNumNodes;
             int iterations = 0;
             Random randGenerator = new Random();
-
-
-            
+            int randCellNumber, randNodeNumber;
+            Node randExpansionNode, newNode;
+            double maxDist = 3.0, maxOrient = 6.28;
+            double nextDist, nextOrient, newX, newY;
 
             while (iterations < maxIterations && !pathFound)
             {
+                randCellNumber = randGenerator.Next(numOccupiedCells);
+                randNodeNumber = randGenerator.Next(numNodesInCell[occupiedCellsList[randCellNumber]]);
+                randExpansionNode = NodesInCells[occupiedCellsList[randCellNumber], randNodeNumber];
+                nextDist = randGenerator.NextDouble() * maxDist;
+                nextOrient = (randGenerator.NextDouble() * maxOrient) - (maxOrient / 2);
+                newX = randExpansionNode.x + nextDist * Math.Cos(nextOrient);
+                newY = randExpansionNode.y + nextDist * Math.Sin(nextOrient);
+                newNode = new Node(newX, newY, numNodes, randExpansionNode.nodeIndex);
 
-                
+                if (!map.CollisionFound(randExpansionNode, newNode, robotRadius))
+                {
+                    AddNode(newNode);
+                }
+
+                if (!map.CollisionFound(newNode, goalNode, robotRadius))
+                {
+                    goalNode.nodeIndex = numNodes;
+                    goalNode.lastNode = numNodes - 1;
+                    AddNode(goalNode);
+                    pathFound = true;
+
+                    // Create the trajectory to follow
+                    BuildTraj(goalNode);
+                }
 
                 // Increment number of iterations
                 iterations++;
             }
 
 
-            // Create the trajectory to follow
-            //BuildTraj(goalNode);
+            
 
             
             // ****************** Additional Student Code: End   ************
@@ -945,9 +968,9 @@ namespace DrRobot.JaguarControl
             // Ensure theta value stays between Pi and -Pi
             t = NormalizeAngle(t);
 
-            deltaX = desiredX - x_est;
-            deltaY = desiredY - y_est;
-            deltaTh = NormalizeAngle(desiredT - t_est);
+            deltaX = x_des - x_est;
+            deltaY = y_des - y_est;
+            deltaTh = NormalizeAngle(t_des - t_est);
 
             pho = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
             alpha = NormalizeAngle(-t_est + Math.Atan2(deltaY, deltaX));
@@ -1105,9 +1128,14 @@ namespace DrRobot.JaguarControl
 
             }
 
-            x_est = xSum / totalWeight;
-            y_est = ySum / totalWeight;
-            t_est = tSum / totalWeight;
+            //x_est = xSum / totalWeight;
+            //y_est = ySum / totalWeight;
+            //t_est = tSum / totalWeight;
+
+            //for PRM testing
+            x_est = x;
+            y_est = y;
+            t_est = t;
 
             // ****************** Additional Student Code: End   ************
 
@@ -1155,7 +1183,7 @@ namespace DrRobot.JaguarControl
                 // Either set the particles at known start position [0 0 0],  
                 // or set particles at random locations.
 
-                if (addRandomParticles)
+                if (jaguarControl.startMode == 1)
                 {
                     SetRandomPos(particles[i]);
                 }

@@ -253,7 +253,7 @@ namespace DrRobot.JaguarControl
             double desiredX = nav_.desiredX;
             double desiredY = nav_.desiredY;
             double desiredT = nav_.desiredT;
-            nav_.InternalReset();
+            nav_.Reset();
             nav_.loggingOn = loggingWasOn;
             nav_.desiredX = desiredX;
             nav_.desiredY = desiredY;
