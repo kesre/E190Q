@@ -86,8 +86,8 @@ namespace DrRobot.JaguarControl
         public double K_wheelRandomness = 0.15;//0.25
         public Random random = new Random();
         public bool newLaserData = false;
-        public double laserMaxRange = 4.0;
-        public double laserMinRange = 0.2;
+        public double laserMaxRange = 5000; //mm
+        public double laserMinRange = 200;  //mm
         public double[] laserAngles;
         private int laserCounter;
         private int laserStepSize = 3;
@@ -399,7 +399,7 @@ namespace DrRobot.JaguarControl
             }
             else
             {
-                // Get most recenct encoder measurements
+                // Get most recent encoder measurements
                 try
                 {
 

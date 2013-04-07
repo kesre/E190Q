@@ -102,14 +102,67 @@ namespace DrRobot.JaguarControl
         // This function is used in your particle filter localization lab. Find 
         // the range measurement to a segment given the ROBOT POSITION (x, y) and 
         // SENSOR ORIENTATION (t)
-        double GetWallDistance(double x, double y, double t, int segment){
+        double GetWallDistance(double x, double y, double t, int segment)
+        {
+
+            // Set wall vars
+            double X1 = mapSegmentCorners[segment, 0, 0];
+            double Y1 = mapSegmentCorners[segment, 0, 1];
+            double X2 = mapSegmentCorners[segment, 1, 0];
+            double Y2 = mapSegmentCorners[segment, 1, 1];
+            double dist = 9999;
+
+            //Range t
+            if (t > Math.PI) t -= 2 * Math.PI; else if (t < -Math.PI) t += 2 * Math.PI;
 
 
+            // ****************** Additional Student Code: Start ***********
 
+            double slopeR, slopeW, interceptR, interceptW;
+            double xLineIntersect, yLineIntersect;
+            double dotProduct, segmentLenSquare;
 
-	        // ****************** Additional Student Code: End   ************
+            slopeR = Math.Tan(t);
+            slopeW = slopes[segment];
 
-	        return 0;
+            interceptR = y - slopeR * x;
+            interceptW = intercepts[segment];
+
+            xLineIntersect = (interceptR - interceptW) / (slopeW - slopeR);
+            yLineIntersect = slopeR * xLineIntersect + interceptR;
+
+            segmentLenSquare = segmentSizes[segment];
+            //dotProduct = (X1 - xLineIntersect) * (X2 - xLineIntersect) + (Y1 - yLineIntersect) * (Y2 - yLineIntersect);
+
+            //if ((dotProduct > 0) && (segmentLenSquare > dotProduct))
+            //{
+            //    dist = (xLineIntersect - x) / Math.Cos(t);
+            //}
+
+            // Distance to wall.
+            dist = Math.Sqrt(Math.Pow(x - xLineIntersect, 2) + Math.Pow(y - yLineIntersect, 2));
+
+            // Need to make sure wall is in front of laser.
+            // We do this by projecting dist from the robot according to t.
+            // Next we find the distance between that point and the intersection point (should be small if valid).
+            double xProj = x + dist * Math.Cos(t);
+            double yProj = y + dist * Math.Sin(t);
+            double projDist = Math.Sqrt(Math.Pow(xProj - xLineIntersect, 2) +
+                                        Math.Pow(yProj - yLineIntersect, 2));
+
+            // Need to make sure wall extends to the intersection point.
+            double projWallLen = Math.Sqrt(Math.Pow(xLineIntersect - (X1 + X2) / 2, 2) +
+                                           Math.Pow(yLineIntersect - (Y1 + Y2) / 2, 2));
+
+            // Dist is invalid if it's too long, the projected point is far from the predicted intersection, 
+            // or the predicted intersection is not along the wall.
+            if (dist > 9999 || Math.Abs(projDist) > Math.Abs(dist) || projWallLen > (segmentLenSquare / 2))
+            {
+                dist = 9999;
+            }
+            // ****************** Additional Student Code: End   ************
+
+            return dist;
         }
 
 
@@ -117,20 +170,32 @@ namespace DrRobot.JaguarControl
         // range to the closest wall segment, for a robot located
         // at position x, y with sensor with orientation t.
 
-        public double GetClosestWallDistance(double x, double y, double t){
+        public double GetClosestWallDistance(double x, double y, double t)
+        {
 
-	        double minDist = 6.000;
+            double minDist = 6.000; // This is in meters and the nominal max range of the laser range finder.
 
-	        // ****************** Additional Student Code: Start ************
+            // ****************** Additional Student Code: Start ************
 
-	        // Put code here that loops through segments, calling the
-	        // function GetWallDistance.
+            // Put code here that loops through segments, calling the
+            // function GetWallDistance.
+            double nextDistance;
 
+            // Keep track of which segment we got our distance from for debugging purposes.
+            double segment = 0;
 
+            for (int i = 0; i < numMapSegments; i++)
+            {
+                nextDistance = Math.Abs(GetWallDistance(x, y, t, i));
+                if (nextDistance < minDist)
+                {
+                    segment = i;
+                    minDist = nextDistance;
+                }
+            }
+            // ****************** Additional Student Code: End   ************
 
-	        // ****************** Additional Student Code: End   ************
-
-	        return minDist;
+            return minDist;
         }
 
 
