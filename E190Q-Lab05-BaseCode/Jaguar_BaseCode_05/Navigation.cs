@@ -771,7 +771,7 @@ namespace DrRobot.JaguarControl
                     AddNode(newNode);
                 }
 
-                if (!map.CollisionFound(newNode, goalNode, robotRadius))
+                if (!map.CollisionFound(nodeList[numNodes-1], goalNode, robotRadius))
                 {
                     goalNode.nodeIndex = numNodes;
                     goalNode.lastNode = numNodes - 1;
