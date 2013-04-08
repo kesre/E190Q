@@ -89,7 +89,7 @@ namespace DrRobot.JaguarControl
         public double[] laserAngles;
         private int laserCounter;
         private int laserStepSize = 3;
-        private int laserTimer = 5000;
+        private int laserTimer = 500;
         private bool addRandomParticles = false;
 
         public class Particle
@@ -755,6 +755,17 @@ namespace DrRobot.JaguarControl
             double maxDist = 3.0, maxOrient = 6.28;
             double nextDist, nextOrient, newX, newY;
 
+            if (!map.CollisionFound(startNode, goalNode, robotRadius))
+            {
+                goalNode.nodeIndex = 1;
+                goalNode.lastNode = 0;
+                AddNode(goalNode);
+                pathFound = true;
+
+                // Create the trajectory to follow
+                BuildTraj(goalNode);
+            }
+
             while (iterations < maxIterations && !pathFound)
             {
                 randCellNumber = randGenerator.Next(numOccupiedCells);
@@ -785,19 +796,8 @@ namespace DrRobot.JaguarControl
                 // Increment number of iterations
                 iterations++;
             }
-
-
-            
-
-            
             // ****************** Additional Student Code: End   ************
-
-
-
-
         }
-
-
 
 
         // This function is used to implement weighted sampling in 
@@ -1128,14 +1128,14 @@ namespace DrRobot.JaguarControl
 
             }
 
-            //x_est = xSum / totalWeight;
-            //y_est = ySum / totalWeight;
-            //t_est = tSum / totalWeight;
+            x_est = xSum / totalWeight;
+            y_est = ySum / totalWeight;
+            t_est = tSum / totalWeight;
 
             //for PRM testing
-            x_est = x;
-            y_est = y;
-            t_est = t;
+            //x_est = x;
+            //y_est = y;
+            //t_est = t;
 
             // ****************** Additional Student Code: End   ************
 
@@ -1233,6 +1233,7 @@ namespace DrRobot.JaguarControl
             p.x = initialX;
             p.y = initialY;
             p.t = initialT;
+            p.w = 1;
         }
 
 
