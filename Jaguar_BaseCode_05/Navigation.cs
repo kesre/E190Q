@@ -614,7 +614,30 @@ namespace DrRobot.JaguarControl
             {
                 TimeSpan ts = DateTime.Now - startTime;
                 time = ts.TotalSeconds;
-                 String newData = time.ToString() + " " + x.ToString() + " " + y.ToString() + " " + t.ToString() ;
+                string qiText;
+                if (jaguarControl.gpsRecord.qi == 0)
+                {
+                    qiText = "Fix not available";
+                }
+                else if (jaguarControl.gpsRecord.qi == 1)
+                {
+                    qiText = "Non DGPS fix available";
+                }
+                else if (jaguarControl.gpsRecord.qi == 2)
+                {
+                    qiText = "DGPS fix available";
+                }
+                else if (jaguarControl.gpsRecord.qi == 6)
+                {
+                    qiText = "Estimate";
+                }
+                else
+                {
+                    qiText = "Fix not available";
+                }
+
+
+                String newData = time.ToString() + "   " +  jaguarControl.gpsRecord.latitude.ToString() + "   " + jaguarControl.gpsRecord.longitude.ToString() + "    " + qiText;
 
                 logFile.WriteLine(newData);
             }
