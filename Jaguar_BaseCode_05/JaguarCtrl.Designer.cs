@@ -111,6 +111,8 @@
             this.txtNumParticles = new System.Windows.Forms.TextBox();
             this.label19 = new System.Windows.Forms.Label();
             this.checkBoxKnownStart = new System.Windows.Forms.CheckBox();
+            this.startPointTextBox = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
             this.groupBoxGPSIMU.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.realJaguar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxIMUGPS)).BeginInit();
@@ -1035,12 +1037,31 @@
             this.checkBoxKnownStart.UseVisualStyleBackColor = true;
             this.checkBoxKnownStart.CheckStateChanged += new System.EventHandler(this.checkBoxKnownStart_CheckedChanged);
             // 
+            // startPointTextBox
+            // 
+            this.startPointTextBox.Location = new System.Drawing.Point(1021, 70);
+            this.startPointTextBox.Name = "startPointTextBox";
+            this.startPointTextBox.Size = new System.Drawing.Size(95, 20);
+            this.startPointTextBox.TabIndex = 74;
+            this.startPointTextBox.Text = "0";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(1020, 52);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(91, 13);
+            this.label20.TabIndex = 75;
+            this.label20.Text = "Starting Waypoint";
+            // 
             // JaguarCtrl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.ClientSize = new System.Drawing.Size(1016, 698);
+            this.ClientSize = new System.Drawing.Size(1130, 698);
+            this.Controls.Add(this.label20);
+            this.Controls.Add(this.startPointTextBox);
             this.Controls.Add(this.txtNumParticles);
             this.Controls.Add(this.label19);
             this.Controls.Add(this.txtStartTheta);
@@ -1207,6 +1228,8 @@
         public System.Windows.Forms.TextBox txtNumParticles;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.CheckBox checkBoxKnownStart;
+        private System.Windows.Forms.TextBox startPointTextBox;
+        private System.Windows.Forms.Label label20;
     }
 }
 

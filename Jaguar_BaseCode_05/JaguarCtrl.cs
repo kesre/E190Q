@@ -1230,6 +1230,7 @@ namespace DrRobot.JaguarControl
         private void btnReset_Click(object sender, EventArgs e)
         {
             navigation.numParticles = int.Parse(txtNumParticles.Text);
+            navigation.startPoint = int.Parse(startPointTextBox.Text);
             controlMode = MANUAL;
             navigation.Reset();
         }

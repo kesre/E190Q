@@ -153,6 +153,9 @@ namespace DrRobot.JaguarControl
         private int maxSteps = 500;
 
 
+        //Competition GPS & Way/checkpoint variables
+        public int startPoint = 0;
+
         #endregion
 
 
