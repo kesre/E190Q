@@ -111,8 +111,18 @@
             this.txtNumParticles = new System.Windows.Forms.TextBox();
             this.label19 = new System.Windows.Forms.Label();
             this.checkBoxKnownStart = new System.Windows.Forms.CheckBox();
-            this.startPointTextBox = new System.Windows.Forms.TextBox();
-            this.label20 = new System.Windows.Forms.Label();
+            this.btnM0 = new System.Windows.Forms.Button();
+            this.btnPoint1 = new System.Windows.Forms.Button();
+            this.btnPoint2 = new System.Windows.Forms.Button();
+            this.btnPoint3 = new System.Windows.Forms.Button();
+            this.btnPoint4 = new System.Windows.Forms.Button();
+            this.btnM1 = new System.Windows.Forms.Button();
+            this.btnPoint6 = new System.Windows.Forms.Button();
+            this.btnPoint7 = new System.Windows.Forms.Button();
+            this.btnPoint8 = new System.Windows.Forms.Button();
+            this.btnPoint9 = new System.Windows.Forms.Button();
+            this.btnPoint10 = new System.Windows.Forms.Button();
+            this.btnM2 = new System.Windows.Forms.Button();
             this.groupBoxGPSIMU.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.realJaguar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxIMUGPS)).BeginInit();
@@ -1037,31 +1047,144 @@
             this.checkBoxKnownStart.UseVisualStyleBackColor = true;
             this.checkBoxKnownStart.CheckStateChanged += new System.EventHandler(this.checkBoxKnownStart_CheckedChanged);
             // 
-            // startPointTextBox
+            // btnM0
             // 
-            this.startPointTextBox.Location = new System.Drawing.Point(1021, 70);
-            this.startPointTextBox.Name = "startPointTextBox";
-            this.startPointTextBox.Size = new System.Drawing.Size(95, 20);
-            this.startPointTextBox.TabIndex = 74;
-            this.startPointTextBox.Text = "0";
+            this.btnM0.Location = new System.Drawing.Point(1020, 42);
+            this.btnM0.Name = "btnM0";
+            this.btnM0.Size = new System.Drawing.Size(92, 40);
+            this.btnM0.TabIndex = 74;
+            this.btnM0.Text = "Start at M0";
+            this.btnM0.UseVisualStyleBackColor = true;
+            this.btnM0.Click += new System.EventHandler(this.btnM0_Click);
             // 
-            // label20
+            // btnPoint1
             // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(1020, 52);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(91, 13);
-            this.label20.TabIndex = 75;
-            this.label20.Text = "Starting Waypoint";
+            this.btnPoint1.Location = new System.Drawing.Point(1020, 88);
+            this.btnPoint1.Name = "btnPoint1";
+            this.btnPoint1.Size = new System.Drawing.Size(92, 46);
+            this.btnPoint1.TabIndex = 75;
+            this.btnPoint1.Text = "Go to Waypoint 1";
+            this.btnPoint1.UseVisualStyleBackColor = true;
+            this.btnPoint1.Click += new System.EventHandler(this.btnPoint1_Click);
+            // 
+            // btnPoint2
+            // 
+            this.btnPoint2.Location = new System.Drawing.Point(1021, 140);
+            this.btnPoint2.Name = "btnPoint2";
+            this.btnPoint2.Size = new System.Drawing.Size(91, 49);
+            this.btnPoint2.TabIndex = 76;
+            this.btnPoint2.Text = "Go to Waypoint 2";
+            this.btnPoint2.UseVisualStyleBackColor = true;
+            this.btnPoint2.Click += new System.EventHandler(this.btnPoint2_Click);
+            // 
+            // btnPoint3
+            // 
+            this.btnPoint3.Location = new System.Drawing.Point(1022, 195);
+            this.btnPoint3.Name = "btnPoint3";
+            this.btnPoint3.Size = new System.Drawing.Size(91, 49);
+            this.btnPoint3.TabIndex = 77;
+            this.btnPoint3.Text = "Go to Waypoint 3";
+            this.btnPoint3.UseVisualStyleBackColor = true;
+            this.btnPoint3.Click += new System.EventHandler(this.btnPoint3_Click);
+            // 
+            // btnPoint4
+            // 
+            this.btnPoint4.Location = new System.Drawing.Point(1022, 250);
+            this.btnPoint4.Name = "btnPoint4";
+            this.btnPoint4.Size = new System.Drawing.Size(91, 49);
+            this.btnPoint4.TabIndex = 78;
+            this.btnPoint4.Text = "Go to Waypoint 4";
+            this.btnPoint4.UseVisualStyleBackColor = true;
+            this.btnPoint4.Click += new System.EventHandler(this.btnPoint4_Click);
+            // 
+            // btnM1
+            // 
+            this.btnM1.Location = new System.Drawing.Point(1022, 305);
+            this.btnM1.Name = "btnM1";
+            this.btnM1.Size = new System.Drawing.Size(91, 49);
+            this.btnM1.TabIndex = 79;
+            this.btnM1.Text = "Go to M1";
+            this.btnM1.UseVisualStyleBackColor = true;
+            this.btnM1.Click += new System.EventHandler(this.btnM1_Click);
+            // 
+            // btnPoint6
+            // 
+            this.btnPoint6.Location = new System.Drawing.Point(1022, 360);
+            this.btnPoint6.Name = "btnPoint6";
+            this.btnPoint6.Size = new System.Drawing.Size(91, 49);
+            this.btnPoint6.TabIndex = 80;
+            this.btnPoint6.Text = "Go to Waypoint 6";
+            this.btnPoint6.UseVisualStyleBackColor = true;
+            this.btnPoint6.Click += new System.EventHandler(this.btnPoint6_Click);
+            // 
+            // btnPoint7
+            // 
+            this.btnPoint7.Location = new System.Drawing.Point(1022, 415);
+            this.btnPoint7.Name = "btnPoint7";
+            this.btnPoint7.Size = new System.Drawing.Size(91, 49);
+            this.btnPoint7.TabIndex = 81;
+            this.btnPoint7.Text = "Go to Waypoint 7";
+            this.btnPoint7.UseVisualStyleBackColor = true;
+            this.btnPoint7.Click += new System.EventHandler(this.button5_Click);
+            // 
+            // btnPoint8
+            // 
+            this.btnPoint8.Location = new System.Drawing.Point(1022, 470);
+            this.btnPoint8.Name = "btnPoint8";
+            this.btnPoint8.Size = new System.Drawing.Size(91, 49);
+            this.btnPoint8.TabIndex = 82;
+            this.btnPoint8.Text = "Go to Waypoint 8";
+            this.btnPoint8.UseVisualStyleBackColor = true;
+            this.btnPoint8.Click += new System.EventHandler(this.btnPoint8_Click);
+            // 
+            // btnPoint9
+            // 
+            this.btnPoint9.Location = new System.Drawing.Point(1022, 525);
+            this.btnPoint9.Name = "btnPoint9";
+            this.btnPoint9.Size = new System.Drawing.Size(91, 49);
+            this.btnPoint9.TabIndex = 83;
+            this.btnPoint9.Text = "Go to Waypoint 9";
+            this.btnPoint9.UseVisualStyleBackColor = true;
+            this.btnPoint9.Click += new System.EventHandler(this.btnPoint9_Click);
+            // 
+            // btnPoint10
+            // 
+            this.btnPoint10.Location = new System.Drawing.Point(1022, 580);
+            this.btnPoint10.Name = "btnPoint10";
+            this.btnPoint10.Size = new System.Drawing.Size(91, 49);
+            this.btnPoint10.TabIndex = 84;
+            this.btnPoint10.Text = "Go to Waypoint 10";
+            this.btnPoint10.UseVisualStyleBackColor = true;
+            this.btnPoint10.Click += new System.EventHandler(this.btnPoint10_Click);
+            // 
+            // btnM2
+            // 
+            this.btnM2.Location = new System.Drawing.Point(1022, 635);
+            this.btnM2.Name = "btnM2";
+            this.btnM2.Size = new System.Drawing.Size(91, 49);
+            this.btnM2.TabIndex = 85;
+            this.btnM2.Text = "Go to M2";
+            this.btnM2.UseVisualStyleBackColor = true;
+            this.btnM2.Click += new System.EventHandler(this.btnM2_Click);
             // 
             // JaguarCtrl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.ClientSize = new System.Drawing.Size(1130, 698);
-            this.Controls.Add(this.label20);
-            this.Controls.Add(this.startPointTextBox);
+            this.ClientSize = new System.Drawing.Size(1129, 698);
+            this.Controls.Add(this.btnM2);
+            this.Controls.Add(this.btnPoint10);
+            this.Controls.Add(this.btnPoint9);
+            this.Controls.Add(this.btnPoint8);
+            this.Controls.Add(this.btnPoint7);
+            this.Controls.Add(this.btnPoint6);
+            this.Controls.Add(this.btnM1);
+            this.Controls.Add(this.btnPoint4);
+            this.Controls.Add(this.btnPoint3);
+            this.Controls.Add(this.btnPoint2);
+            this.Controls.Add(this.btnPoint1);
+            this.Controls.Add(this.btnM0);
             this.Controls.Add(this.txtNumParticles);
             this.Controls.Add(this.label19);
             this.Controls.Add(this.txtStartTheta);
@@ -1228,8 +1351,18 @@
         public System.Windows.Forms.TextBox txtNumParticles;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.CheckBox checkBoxKnownStart;
-        private System.Windows.Forms.TextBox startPointTextBox;
-        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Button btnM0;
+        private System.Windows.Forms.Button btnPoint1;
+        private System.Windows.Forms.Button btnPoint2;
+        private System.Windows.Forms.Button btnPoint3;
+        private System.Windows.Forms.Button btnPoint4;
+        private System.Windows.Forms.Button btnM1;
+        private System.Windows.Forms.Button btnPoint6;
+        private System.Windows.Forms.Button btnPoint7;
+        private System.Windows.Forms.Button btnPoint8;
+        private System.Windows.Forms.Button btnPoint9;
+        private System.Windows.Forms.Button btnPoint10;
+        private System.Windows.Forms.Button btnM2;
     }
 }
 
