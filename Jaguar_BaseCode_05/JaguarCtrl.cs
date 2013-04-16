@@ -1245,7 +1245,7 @@ namespace DrRobot.JaguarControl
             catch
             {
             }
-            navigation.motionPlanRequired = true;
+            navigation.motionPlanRequired = false;
             controlMode = AUTONOMOUS;
         }
 
