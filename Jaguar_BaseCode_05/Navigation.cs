@@ -143,14 +143,33 @@ namespace DrRobot.JaguarControl
             }
         }
 
+        public class GPStoXY
+        {
+            public double x, y, lat0, long0;
+            public double r = 6371451.9; //calculated radius of earth at 34.106333 N
 
-        private static Genetic genAlg_;
-        private int numGenerations = 5;
-        private int popSize = 100;
-        private int mutationRate = 10;
-        private int mutationFactor = 10;
-        private int numParents = 20;
-        private int maxSteps = 500;
+            public GPStoXY()
+            {
+                x = 0;
+                y = 0;
+                lat0 = 0;
+                long0 = 0;
+            }
+
+            public GPStoXY(double _x, double _y, double _lat0, double _long0)
+            {
+                x = _x;
+                y = _y;
+                lat0 = _lat0;
+                long0 = _long0;
+            }
+
+            public void CalcCurXY(double currentLat, double currentLong)
+            {
+                x = 2 * r * Math.Asin(Math.Sqrt(Math.Pow(Math.Cos(lat0), 2) * Math.Pow(Math.Sin((currentLong - long0) / 2), 2)));
+                y = 2 * r * Math.Asin(Math.Sin((currentLat - lat0) / 2));
+            }
+        }
 
 
         //Competition GPS & Way/checkpoint variables
@@ -160,7 +179,7 @@ namespace DrRobot.JaguarControl
 
 
         #region Navigation Setup
-        
+
         // Constructor for the Navigation class
         public Navigation(JaguarCtrl jc)
         {
@@ -228,7 +247,7 @@ namespace DrRobot.JaguarControl
             displaySimRobot = true;
 
             laserAngles = new double[LaserData.Length];
-            for (int i = 0; i < LaserData.Length; i++)                
+            for (int i = 0; i < LaserData.Length; i++)
                 laserAngles[i] = DrRobot.JaguarControl.JaguarCtrl.startAng + DrRobot.JaguarControl.JaguarCtrl.stepAng * i;
 
             // MP variable setup
@@ -281,7 +300,7 @@ namespace DrRobot.JaguarControl
                 // functions to call here. For lab 1, we just call the function
                 // WallPositioning to have the robot maintain a constant distance
                 // to the wall (see lab manual).
-                
+
                 // Update Sensor Readings
                 UpdateSensorMeasurements();
 
@@ -319,7 +338,7 @@ namespace DrRobot.JaguarControl
                         CalcSimulatedMotorSignals();
                         ActuateMotorsWithVelControl();
                     }
-                    else 
+                    else
                     {
                         // Determine the desired PWM signals for desired wheel speeds
                         CalcMotorSignals();
@@ -332,7 +351,7 @@ namespace DrRobot.JaguarControl
                     e_sum_L = 0;
                     e_sum_R = 0;
                 }
-                
+
                 // ****************** Additional Student Code: End   ************
 
                 // Log data
@@ -358,7 +377,7 @@ namespace DrRobot.JaguarControl
                 Thread.Sleep(deltaT);
             }
             accCalib_x = accCalib_x / numMeasurements;
-            accCalib_y = accCalib_y /numMeasurements;
+            accCalib_y = accCalib_y / numMeasurements;
 
 
         }
@@ -431,9 +450,9 @@ namespace DrRobot.JaguarControl
                 laserCounter = laserCounter + deltaT;
                 if (laserCounter >= laserTimer)
                 {
-                    for (int i = 0; i < LaserData.Length; i=i+laserStepSize)
+                    for (int i = 0; i < LaserData.Length; i = i + laserStepSize)
                     {
-                        LaserData[i] = (long)(1000 * map.GetClosestWallDistance(x, y, t -1.57 + laserAngles[i]));
+                        LaserData[i] = (long)(1000 * map.GetClosestWallDistance(x, y, t - 1.57 + laserAngles[i]));
                     }
                     laserCounter = 0;
                     newLaserData = true;
@@ -449,7 +468,7 @@ namespace DrRobot.JaguarControl
                     currentAccel_x = jaguarControl.getAccel_x();
                     currentAccel_y = jaguarControl.getAccel_y();
                     currentAccel_z = jaguarControl.getAccel_z();
-                   
+
                     // Update Encoder Measurements
                     currentEncoderPulseL = jaguarControl.realJaguar.GetEncoderPulse4();
                     currentEncoderPulseR = jaguarControl.realJaguar.GetEncoderPulse5();
@@ -564,7 +583,7 @@ namespace DrRobot.JaguarControl
         // At every iteration of the control loop, this function sends
         // the width of a pulse for PWM control to the robot motors
         public void ActuateMotorsWithPWMControl()
-        { 
+        {
             if (jaguarControl.Simulating())
                 simulatedJaguar.DcMotorPwmNonTimeCtrAll(0, 0, 0, motorSignalL, motorSignalR, 0);
             else
@@ -640,7 +659,7 @@ namespace DrRobot.JaguarControl
                 }
 
 
-                String newData = time.ToString() + "   " +  jaguarControl.gpsRecord.latitude.ToString() + "   " + jaguarControl.gpsRecord.longitude.ToString() + "    " + qiText;
+                String newData = time.ToString() + "   " + jaguarControl.gpsRecord.latitude.ToString() + "   " + jaguarControl.gpsRecord.longitude.ToString() + "    " + qiText;
 
                 logFile.WriteLine(newData);
             }
@@ -667,7 +686,7 @@ namespace DrRobot.JaguarControl
 
             // Send Control signals, put negative on left wheel control
 
- 
+
 
             // ****************** Additional Student Code: End   ************                
         }
@@ -808,7 +827,7 @@ namespace DrRobot.JaguarControl
                     AddNode(newNode);
                 }
 
-                if (!map.CollisionFound(nodeList[numNodes-1], goalNode, robotRadius))
+                if (!map.CollisionFound(nodeList[numNodes - 1], goalNode, robotRadius))
                 {
                     goalNode.nodeIndex = numNodes;
                     goalNode.lastNode = numNodes - 1;
@@ -903,7 +922,7 @@ namespace DrRobot.JaguarControl
         }
 
 
- 
+
 
 
         #endregion
@@ -1270,18 +1289,18 @@ namespace DrRobot.JaguarControl
 
         double RandomGaussian()
         {
-	        double U1, U2, V1=0, V2;
-	        double S = 2.0;
-	        while(S >= 1.0) 
-	        {
-		        U1 = random.NextDouble();
+            double U1, U2, V1 = 0, V2;
+            double S = 2.0;
+            while (S >= 1.0)
+            {
+                U1 = random.NextDouble();
                 U2 = random.NextDouble();
-		        V1 = 2.0*U1-1.0;
-		        V2 = 2.0*U2-1.0;
-		        S = Math.Pow(V1,2) + Math.Pow(V2,2);
-	        }
-	        double gauss = V1*Math.Sqrt((-2.0*Math.Log(S))/S);
-	        return gauss;
+                V1 = 2.0 * U1 - 1.0;
+                V2 = 2.0 * U2 - 1.0;
+                S = Math.Pow(V1, 2) + Math.Pow(V2, 2);
+            }
+            double gauss = V1 * Math.Sqrt((-2.0 * Math.Log(S)) / S);
+            return gauss;
         }
 
 
@@ -1289,11 +1308,11 @@ namespace DrRobot.JaguarControl
         // Get the sign of a number
         double Sgn(double a)
         {
-	        if (a>0)
+            if (a > 0)
                 return 1.0;
-	        else if (a<0)
+            else if (a < 0)
                 return -1.0;
-	        else
+            else
                 return 0.0;
         }
 
