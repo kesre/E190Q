@@ -1125,7 +1125,7 @@
             this.btnPoint7.TabIndex = 81;
             this.btnPoint7.Text = "Go to Waypoint 7";
             this.btnPoint7.UseVisualStyleBackColor = true;
-            this.btnPoint7.Click += new System.EventHandler(this.button5_Click);
+            //this.btnPoint7.Click += new System.EventHandler(this.button5_Click);
             // 
             // btnPoint8
             // 
