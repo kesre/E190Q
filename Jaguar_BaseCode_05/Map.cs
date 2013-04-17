@@ -207,41 +207,41 @@ namespace DrRobot.JaguarControl
         // to the wall segment, until the end of the edge is reached or 
         // a collision occurs.
 
-        public bool CollisionFound(Navigation.Node n1, Navigation.Node n2, double tol)
-        {
+        //public bool CollisionFound(Navigation.Node n1, Navigation.Node n2, double tol)
+        //{
 
 
-            // Check that within boundaries
-            if (n2.x > maxWorkspaceX || n2.x < minWorkspaceX || n2.y > maxWorkspaceY || n2.y < minWorkspaceY)
-                return true;
+        //    // Check that within boundaries
+        //    if (n2.x > maxWorkspaceX || n2.x < minWorkspaceX || n2.y > maxWorkspaceY || n2.y < minWorkspaceY)
+        //        return true;
 
 
-            // Check for collision with walls
-            double theta = Math.Atan2(n2.y - n1.y, n2.x - n1.x);
-            double edgeSize = Math.Sqrt(Math.Pow(n2.y - n1.y, 2) + Math.Pow(n2.x - n1.x, 2));
-            double sinTheta = Math.Sin(theta);
-            double cosTheta = Math.Cos(theta);
+        //    // Check for collision with walls
+        //    double theta = Math.Atan2(n2.y - n1.y, n2.x - n1.x);
+        //    double edgeSize = Math.Sqrt(Math.Pow(n2.y - n1.y, 2) + Math.Pow(n2.x - n1.x, 2));
+        //    double sinTheta = Math.Sin(theta);
+        //    double cosTheta = Math.Cos(theta);
 
-            // Loop through segments
-            for (int segment = 0; segment < numMapSegments; segment++)
-            {
+        //    // Loop through segments
+        //    for (int segment = 0; segment < numMapSegments; segment++)
+        //    {
 
-                double distTravelledOnEdge = 0;
-                double ex = n1.x, ey = n1.y;
-                double distToSegment;
-                while (distTravelledOnEdge - tol < edgeSize)
-                {
-                    distToSegment = GetWallDistance(ex, ey, segment, tol, n2.x, n2.y);
-                    if (distToSegment - tol < 0.05)
-                        return true;
-                    ex += cosTheta * distToSegment;
-                    ey += sinTheta * distToSegment;
-                    distTravelledOnEdge += distToSegment;
-                }
+        //        double distTravelledOnEdge = 0;
+        //        double ex = n1.x, ey = n1.y;
+        //        double distToSegment;
+        //        while (distTravelledOnEdge - tol < edgeSize)
+        //        {
+        //            distToSegment = GetWallDistance(ex, ey, segment, tol, n2.x, n2.y);
+        //            if (distToSegment - tol < 0.05)
+        //                return true;
+        //            ex += cosTheta * distToSegment;
+        //            ey += sinTheta * distToSegment;
+        //            distTravelledOnEdge += distToSegment;
+        //        }
 
-            }
-            return false;
-        }
+        //    }
+        //    return false;
+        //}
 
 
         // This function will calculate the length of the perpendicular 

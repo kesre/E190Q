@@ -111,42 +111,48 @@ namespace DrRobot.JaguarControl
         const float minWorkspaceY = -10.0f;
         const float maxWorkspaceY = 10.0f;
 
-        // Motion Planner Variables 
-        public double samplingCellSizeX, samplingCellSizeY;
-        public int numOccupiedCells;
-        public int[] occupiedCellsList;
-        public int[] numNodesInCell;
-        public Node[,] NodesInCells;
-        public Node[] trajList, nodeList;
-        public GPStoXY gpsToXY;
+        //// Motion Planner Variables 
+        //public double samplingCellSizeX, samplingCellSizeY;
+        //public int numOccupiedCells;
+        //public int[] occupiedCellsList;
+        //public int[] numNodesInCell;
+        //public Node[,] NodesInCells;
+        //public Node[] trajList, nodeList;
+        
+        //public int trajSize, trajCurrentNode, numNodes;
+
         public double originLat = 3406.364062;
         public double originLong = 11742.70931;
-        public int trajSize, trajCurrentNode, numNodes;
+        public GPStoXY gpsToXY;
+        double[] latList = { 3406.373521, 3406.364333, 3406.37696, 3406.374458, 3406.365414, 3406.362289, 3406.36103, 3406.365268, 3406.365044, 3406.363054 };
+        double[] longList = { 11742.71921, 11742.68456, 11742.7183, 11742.71629, 11742.7182, 11742.72201, 11742.71994, 11742.71208, 11742.71031, 11742.71111 };
+        public int gpsIndex = 0;
+        public double distThreshold = .5;
 
-        public class Node
-        {
-            public double x, y, t;
-            public int lastNode;
-            public int nodeIndex;
+        //public class Node
+        //{
+        //    public double x, y, t;
+        //    public int lastNode;
+        //    public int nodeIndex;
 
-            public Node()
-            {
-                x = 0;
-                y = 0;
-                t = 0;
-                lastNode = 0;
-                nodeIndex = 0;
-            }
+        //    public Node()
+        //    {
+        //        x = 0;
+        //        y = 0;
+        //        t = 0;
+        //        lastNode = 0;
+        //        nodeIndex = 0;
+        //    }
 
-            public Node(double _x, double _y, double _t, int _nodeIndex, int _lastNode)
-            {
-                x = _x;
-                y = _y;
-                t = _t;
-                nodeIndex = _nodeIndex;
-                lastNode = _lastNode;
-            }
-        }
+        //    public Node(double _x, double _y, double _t, int _nodeIndex, int _lastNode)
+        //    {
+        //        x = _x;
+        //        y = _y;
+        //        t = _t;
+        //        nodeIndex = _nodeIndex;
+        //        lastNode = _lastNode;
+        //    }
+        //}
 
         public class GPStoXY
         {
@@ -165,14 +171,17 @@ namespace DrRobot.JaguarControl
             {
                 x = _x;
                 y = _y;
+
+                // Robot gives format as degrees * 100.
                 lat0 = _lat0;
                 long0 = _long0;
             }
 
             public void CalcCurXY(double currentLat, double currentLong)
             {
-                x = 2 * r * Math.Asin(Math.Sqrt(Math.Pow(Math.Cos(lat0), 2) * Math.Pow(Math.Sin((currentLong - long0) / 2), 2)));
-                y = 2 * r * Math.Asin(Math.Sin((currentLat - lat0) / 2));
+                // All instances of lat and long need to be divided by 100 due to formatting.
+                x = 2 * r * Math.Asin(Math.Sqrt(Math.Pow(Math.Cos(lat0 / 100), 2) * Math.Pow(Math.Sin((currentLong - long0) / 200), 2)));
+                y = 2 * r * Math.Asin(Math.Sin((currentLat - lat0) / 200));
             }
         }
 
@@ -195,13 +204,13 @@ namespace DrRobot.JaguarControl
             map = new Map();
 
             // Create particles
-            particles = new Particle[numParticles];
-            propagatedParticles = new List<Particle>(numParticles);
-            for (int i = 0; i < numParticles; i++)
-            {
-                particles[i] = new Particle();
-                propagatedParticles.Add(new Particle());
-            }
+            //particles = new Particle[numParticles];
+            //propagatedParticles = new List<Particle>(numParticles);
+            //for (int i = 0; i < numParticles; i++)
+            //{
+            //    particles[i] = new Particle();
+            //    propagatedParticles.Add(new Particle());
+            //}
 
             gpsToXY = new GPStoXY(0, 0, originLat, originLong);
 
@@ -228,13 +237,14 @@ namespace DrRobot.JaguarControl
             t_est = 0;//initialT;
 
             // Set desired state
-            desiredX = 0;// initialX;
-            desiredY = 0;// initialY;
-            desiredT = 0;// initialT;
+            x_des = 0;
+            y_des = 0;
+            t_des = 0;  //Maybe change later
 
-            double[] latList = { 3406.373521, 3406.364333, 3406.37696, 3406.374458, 3406.365414, 3406.362289, 3406.36103, 3406.365268, 3406.365044, 3406.363054 };
-            double[] longList = { 11742.71921, 11742.68456, 11742.7183, 11742.71629, 11742.7182, 11742.72201, 11742.71994, 11742.71208, 11742.71031, 11742.71111 };
-            
+            //desiredX = 0;// initialX;
+            //desiredY = 0;// initialY;
+            //desiredT = 0;// initialT;
+
             // Reset Localization Variables
             wheelDistanceR = 0;
             wheelDistanceL = 0;
@@ -261,14 +271,14 @@ namespace DrRobot.JaguarControl
                 laserAngles[i] = DrRobot.JaguarControl.JaguarCtrl.startAng + DrRobot.JaguarControl.JaguarCtrl.stepAng * i;
 
             // MP variable setup
-            occupiedCellsList = new int[numXCells * numYCells];
-            numNodesInCell = new int[numXCells * numYCells];
-            NodesInCells = new Node[numXCells * numYCells, 500];
-            trajList = new Node[maxNumNodes];
-            nodeList = new Node[maxNumNodes];
-            numNodes = 0;
+            //occupiedCellsList = new int[numXCells * numYCells];
+            //numNodesInCell = new int[numXCells * numYCells];
+            //NodesInCells = new Node[numXCells * numYCells, 500];
+            //trajList = new Node[maxNumNodes];
+            //nodeList = new Node[maxNumNodes];
+            //numNodes = 0;
             //trajList[0] = new Node(0, 0, 0, 0);
-            trajSize = 0;
+            //trajSize = 0;
 
 
         }
@@ -318,26 +328,29 @@ namespace DrRobot.JaguarControl
                 MotionPrediction();
 
                 // Update the global state of the robot - x,y,t (lab 2)
-                LocalizeRealWithOdometry();
+                //LocalizeRealWithOdometry();
 
                 // Estimate the global state of the robot -x_est, y_est, t_est (lab 4)
-                LocalizeEstWithParticleFilter();
-
+                //LocalizeEstWithParticleFilter();
+ 
 
                 // If using the point tracker, call the function
                 if (jaguarControl.controlMode == jaguarControl.AUTONOMOUS)
                 {
 
                     // Check if we need to create a new trajectory
-                    if (motionPlanRequired)
-                    {
+                    //if (motionPlanRequired)
+                    //{
                         // Construct a new trajectory (lab 5)
                         // PRMMotionPlanner();
-                        motionPlanRequired = false;
-                    }
+                    //    motionPlanRequired = false;
+                    //}
 
                     // Drive the robot to a desired Point (lab 3)
                     //FlyToSetPoint();
+
+
+                    LocalizeRealWithGPS();
 
                     // Follow the trajectory instead of a desired point (lab 3)
                     TrackTrajectory();
@@ -759,18 +772,21 @@ namespace DrRobot.JaguarControl
         // THis function is called to follow a trajectory constructed by PRMMotionPlanner()
         private void TrackTrajectory()
         {
-            double distToCurrentNode = Math.Sqrt(Math.Pow(x_est - trajList[trajCurrentNode].x, 2) + Math.Pow(y_est - trajList[trajCurrentNode].y, 2));
-            if (distToCurrentNode < 0.1 && trajCurrentNode + 1 < trajSize)
+            gpsToXY.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
+            double distToCurrentNode = Math.Sqrt(Math.Pow(x_est - gpsToXY.x, 2) + Math.Pow(y_est - gpsToXY.y, 2));
+            if (distToCurrentNode < distThreshold && gpsIndex + 1 < latList.Length)
             {
-                trajCurrentNode++;
-                x_des = trajList[trajCurrentNode].x;
-                y_des = trajList[trajCurrentNode].y;
+                gpsIndex++;
+                gpsToXY.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
+                x_des = gpsToXY.x;
+                y_des = gpsToXY.y;
                 t_des = Math.Atan2(y_des - y, x_des - x);
             }
 
             FlyToSetPoint();
         }
 
+        #region Don't Care
         // This function houses the core motion planner. This function
         // will generate a new trajectory when called. Students must 
         // add their code here.
@@ -860,11 +876,11 @@ namespace DrRobot.JaguarControl
         // The work environment is divided into a grid of cells.
         // This function returns the cell number.
         
-        int GetCellNumber(double x, double y)
-        {
-            int cell = (int)Math.Floor((x - minWorkspaceX) / samplingCellSizeX) + (int)(Math.Floor((y - minWorkspaceY) / samplingCellSizeY) * numXCells);
-            return cell;
-        }
+        //int GetCellNumber(double x, double y)
+        //{
+        //    int cell = (int)Math.Floor((x - minWorkspaceX) / samplingCellSizeX) + (int)(Math.Floor((y - minWorkspaceY) / samplingCellSizeY) * numXCells);
+        //    return cell;
+        //}
 
         // This function is also used to implement weighted sampling in 
         // when randomly selecting nodes to expand from in the PRM.
@@ -876,26 +892,26 @@ namespace DrRobot.JaguarControl
         // list that keeps track of all nodes for building the final
         // trajectory.
 
-        void AddNode(Node n)
-        {
-            int cellNumber = GetCellNumber(n.x, n.y);
-            if (numNodesInCell[cellNumber] < 1)
-            {
-                occupiedCellsList[numOccupiedCells] = cellNumber;
-                numOccupiedCells++;
-            }
+        //void AddNode(Node n)
+        //{
+        //    int cellNumber = GetCellNumber(n.x, n.y);
+        //    if (numNodesInCell[cellNumber] < 1)
+        //    {
+        //        occupiedCellsList[numOccupiedCells] = cellNumber;
+        //        numOccupiedCells++;
+        //    }
 
-            if (numNodesInCell[cellNumber] < 400)
-            {
-                NodesInCells[cellNumber, numNodesInCell[cellNumber]] = n;
-                numNodesInCell[cellNumber]++;
+        //    if (numNodesInCell[cellNumber] < 400)
+        //    {
+        //        NodesInCells[cellNumber, numNodesInCell[cellNumber]] = n;
+        //        numNodesInCell[cellNumber]++;
 
-                // Add to nodelist
-                nodeList[numNodes] = n;
-                numNodes++;
-            }
-            return;
-        }
+        //        // Add to nodelist
+        //        nodeList[numNodes] = n;
+        //        numNodes++;
+        //    }
+        //    return;
+        //}
 
 
         // Given the goal node, this function will recursively add the
@@ -935,7 +951,7 @@ namespace DrRobot.JaguarControl
 
 
 
-
+        #endregion
         #endregion
 
 
@@ -1287,11 +1303,11 @@ namespace DrRobot.JaguarControl
 
                 if (jaguarControl.startMode == 1)
                 {
-                    SetRandomPos(particles[i]);
+                    //SetRandomPos(particles[i]);
                 }
                 else
                 {
-                    SetStartPos(particles[i]);
+                    //SetStartPos(particles[i]);
                 }
             }
 

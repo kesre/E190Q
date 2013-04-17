@@ -265,18 +265,18 @@ namespace DrRobot.JaguarControl
                 g.DrawLine(thinWhitePen, (float)(xCenter + 0.1 * mapResolution), (float)(yCenter - 1.4 * mapResolution),
                     (float)(xCenter + 0.0 * mapResolution), (float)(yCenter - 1.5 * mapResolution));
 
-                // Draw PRM milestones
-                for (int i = 0; i < navigation.numNodes; i++)
-                {
-                    g.DrawEllipse(milestonePen, xCenter + (float)navigation.nodeList[i].x * (float)mapResolution, yCenter - (float)navigation.nodeList[i].y * (float)mapResolution, 2, 2);
-                    g.DrawLine(milestonePen, xCenter + (float)navigation.nodeList[i].x * (float)mapResolution, yCenter - (float)navigation.nodeList[i].y * (float)mapResolution, xCenter + (float)navigation.nodeList[navigation.nodeList[i].lastNode].x * (float)mapResolution, yCenter - (float)navigation.nodeList[navigation.nodeList[i].lastNode].y * (float)mapResolution);
-                }
+                //////// Draw PRM milestones
+                //////for (int i = 0; i < navigation.numNodes; i++)
+                //////{
+                //////    g.DrawEllipse(milestonePen, xCenter + (float)navigation.nodeList[i].x * (float)mapResolution, yCenter - (float)navigation.nodeList[i].y * (float)mapResolution, 2, 2);
+                //////    g.DrawLine(milestonePen, xCenter + (float)navigation.nodeList[i].x * (float)mapResolution, yCenter - (float)navigation.nodeList[i].y * (float)mapResolution, xCenter + (float)navigation.nodeList[navigation.nodeList[i].lastNode].x * (float)mapResolution, yCenter - (float)navigation.nodeList[navigation.nodeList[i].lastNode].y * (float)mapResolution);
+                //////}
 
-                // Draw Trajectory
-                for (int i = 0; i < navigation.trajSize - 1; i++)
-                    g.DrawLine(trajPen, xCenter + (float)navigation.trajList[i].x * (float)mapResolution, yCenter - (float)navigation.trajList[i].y * (float)mapResolution,
-                         xCenter + (float)navigation.trajList[i + 1].x * (float)mapResolution, yCenter - (float)navigation.trajList[i + 1].y * (float)mapResolution);
-                // Draw Robot
+                //// Draw Trajectory
+                //for (int i = 0; i < navigation.trajSize - 1; i++)
+                //    g.DrawLine(trajPen, xCenter + (float)navigation.trajList[i].x * (float)mapResolution, yCenter - (float)navigation.trajList[i].y * (float)mapResolution,
+                //         xCenter + (float)navigation.trajList[i + 1].x * (float)mapResolution, yCenter - (float)navigation.trajList[i + 1].y * (float)mapResolution);
+                //// Draw Robot
                 int xShift = (int)(mapResolution * navigation.x);
                 int yShift = (int)(mapResolution * navigation.y);
                 double robotDiagnol = 0.25 * mapResolution;
@@ -318,16 +318,16 @@ namespace DrRobot.JaguarControl
                 }
 
                 // Draw Particles
-                int partSize = (int)(0.16*mapResolution);
-                int partHalfSize = (int)(0.08 * mapResolution);
-                for (int p = 0; p < navigation.numParticles; p++)
-                {
-                    g.DrawPie(particlePen, (int)(xCenter -partHalfSize + mapResolution * navigation.particles[p].x), (int)(yCenter - partHalfSize - mapResolution * navigation.particles[p].y), partSize, partSize, (int)(-navigation.particles[p].t * 180 / 3.14 - 180 - 25), 50);
-                }
+                //int partSize = (int)(0.16*mapResolution);
+                //int partHalfSize = (int)(0.08 * mapResolution);
+                //for (int p = 0; p < navigation.numParticles; p++)
+                //{
+                //    g.DrawPie(particlePen, (int)(xCenter -partHalfSize + mapResolution * navigation.particles[p].x), (int)(yCenter - partHalfSize - mapResolution * navigation.particles[p].y), partSize, partSize, (int)(-navigation.particles[p].t * 180 / 3.14 - 180 - 25), 50);
+                //}
 
 
                 // Draw State Estimate
-                g.DrawPie(estimatePen, (int)(xCenter - partHalfSize + mapResolution * navigation.x_est), (int)(yCenter - partHalfSize - mapResolution * navigation.y_est), partSize, partSize, (int)(-navigation.t_est * 180 / 3.14 - 180 - 25), 50);
+                //g.DrawPie(estimatePen, (int)(xCenter - partHalfSize + mapResolution * navigation.x_est), (int)(yCenter - partHalfSize - mapResolution * navigation.y_est), partSize, partSize, (int)(-navigation.t_est * 180 / 3.14 - 180 - 25), 50);
 
                 // Paint background of bitmap
                 g.FillRectangle(Brushes.LightGray, new Rectangle(xMin - 40, yMin, 40, paneHeight));
