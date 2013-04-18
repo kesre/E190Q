@@ -60,8 +60,8 @@ namespace DrRobot.JaguarControl
         double time = 0;
         DateTime startTime;
 
-        public short K_P = 36;//15;
-        public short K_I = 1;//0;
+        public short K_P = 60; //36; inside
+        public short K_I = 0; //1;//0;
         public short K_D = 0;//3;
         public short frictionComp = 8750;//8750;
         public double e_sum_R, e_sum_L;
@@ -121,10 +121,11 @@ namespace DrRobot.JaguarControl
         
         //public int trajSize, trajCurrentNode, numNodes;
 
-        public double originLat = 3406.364062;
-        public double originLong = 11742.70931;
-        public GPStoXY gpsToXY;
-        double[] latList = { 3406.373521, 3406.364333, 3406.37696, 3406.374458, 3406.365414, 3406.362289, 3406.36103, 3406.365268, 3406.365044, 3406.363054 };
+        public double originLat = 3406.38127;     //3406.364062;
+        public double originLong = 11742.71995;    //11742.70931;
+        public GPStoXY gpsToXY_est;
+        public GPStoXY gpsToXY_des;
+        double[] latList = { 3406.380105, 3406.364333, 3406.37696, 3406.374458, 3406.365414, 3406.362289, 3406.36103, 3406.365268, 3406.365044, 3406.363054 };
         double[] longList = { 11742.71921, 11742.68456, 11742.7183, 11742.71629, 11742.7182, 11742.72201, 11742.71994, 11742.71208, 11742.71031, 11742.71111 };
         public int gpsIndex = 0;
         public double distThreshold = .5;
@@ -156,7 +157,7 @@ namespace DrRobot.JaguarControl
 
         public class GPStoXY
         {
-            public double x, y, lat0, long0;
+            public double x, y, lat0, long0, x0, y0, lat1, long1, x1, y1;
             public double r = 6371451.9; //calculated radius of earth at 34.106333 N
 
             public GPStoXY()
@@ -170,18 +171,49 @@ namespace DrRobot.JaguarControl
             public GPStoXY(double _x, double _y, double _lat0, double _long0)
             {
                 x = _x;
-                y = _y;
+                y = _y;        
 
-                // Robot gives format as degrees * 100.
-                lat0 = _lat0;
-                long0 = _long0;
+                lat0 = ConvertDDDMM_MMMToDDD_DDD(_lat0);
+                long0 = ConvertDDDMM_MMMToDDD_DDD(_long0);
+                x0 = 0;
+                y0 = 0;
+
+                lat1 = ConvertDDDMM_MMMToDDD_DDD(3406.366);
+                long1 = ConvertDDDMM_MMMToDDD_DDD(11742.710);
+                x1 = 30 * Math.Sin(25 * Math.PI / 180);
+                y1 = 30 * Math.Cos(25 * Math.PI / 180);                
+            }
+
+            public double ConvertDDDMM_MMMToDDD_DDD(double gpsCoord)
+            {
+                double newCoord = 0;
+                double degrees, minutes;
+
+                minutes = gpsCoord % 100;
+                degrees = (gpsCoord - minutes) / 100;
+
+                newCoord = degrees + (minutes / 60);
+
+                return newCoord;
             }
 
             public void CalcCurXY(double currentLat, double currentLong)
             {
                 // All instances of lat and long need to be divided by 100 due to formatting.
-                x = 2 * r * Math.Asin(Math.Sqrt(Math.Pow(Math.Cos(lat0 / 100), 2) * Math.Pow(Math.Sin((currentLong - long0) / 200), 2)));
-                y = 2 * r * Math.Asin(Math.Sin((currentLat - lat0) / 200));
+                //x = 2 * r * Math.Asin(Math.Sqrt(Math.Pow(Math.Cos(lat0 / 100), 2) * Math.Pow(Math.Sin((currentLong - long0) / 200), 2)));
+                //y = 2 * r * Math.Asin(Math.Sin((currentLat - lat0) / 200));
+
+                currentLat = ConvertDDDMM_MMMToDDD_DDD(currentLat);
+                currentLong = ConvertDDDMM_MMMToDDD_DDD(currentLong);
+
+                x = (currentLat - lat0) * (x1 - x0) / (lat1 - lat0);
+                y = (currentLong - long0) * (y1 - y0) / (long1 - long0);
+
+                //double distance = 2 * r * Math.Asin(Math.Sqrt(Math.Pow(Math.Sin((currentLat - lat0)/(2)),2) + 
+                //    Math.Cos(currentLat) * Math.Cos(lat0) * Math.Pow(Math.Sin((currentLong - long0)/(2)),2)));
+                //double currentAngle = Math.Atan2((currentLat - lat0), (currentLong - long0));
+                //x = Math.Cos(currentAngle) * distance;
+                //y = Math.Sin(currentAngle) * distance;
             }
         }
 
@@ -212,7 +244,18 @@ namespace DrRobot.JaguarControl
             //    propagatedParticles.Add(new Particle());
             //}
 
-            gpsToXY = new GPStoXY(0, 0, originLat, originLong);
+            int numGPSAvg = 100;
+            double totalLat = 0;
+            double totalLong = 0;
+
+            for (int i = 0; i < numGPSAvg; i++)
+            {
+                totalLat += jaguarControl.gpsRecord.latitude;
+                totalLong += jaguarControl.gpsRecord.longitude;
+            }
+
+            gpsToXY_est = new GPStoXY(0, 0, totalLat/numGPSAvg, totalLong/numGPSAvg);
+            gpsToXY_des = new GPStoXY(0, 0, totalLat / numGPSAvg, totalLong / numGPSAvg);
 
             this.Initialize();
 
@@ -682,7 +725,9 @@ namespace DrRobot.JaguarControl
                 }
 
 
-                String newData = time.ToString() + "   " + jaguarControl.gpsRecord.latitude.ToString() + "   " + jaguarControl.gpsRecord.longitude.ToString() + "    " + qiText;
+                String newData = time.ToString() + "   " + jaguarControl.gpsRecord.latitude.ToString() + "   " + jaguarControl.gpsRecord.longitude.ToString() + "    " + qiText + "    " +
+                        jaguarControl.imuRecord.magn_x.ToString() + "    " + jaguarControl.imuRecord.magn_y.ToString() + "    " + jaguarControl.imuRecord.magn_z.ToString() + "   " +
+                        x_est.ToString() + "   " + y_est.ToString() + "   " + gpsIndex.ToString() + "   " + x_des.ToString() + "   " + y_des.ToString() + "   " + t_des.ToString();
 
                 logFile.WriteLine(newData);
             }
@@ -772,15 +817,15 @@ namespace DrRobot.JaguarControl
         // THis function is called to follow a trajectory constructed by PRMMotionPlanner()
         private void TrackTrajectory()
         {
-            gpsToXY.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
-            double distToCurrentNode = Math.Sqrt(Math.Pow(x_est - gpsToXY.x, 2) + Math.Pow(y_est - gpsToXY.y, 2));
+            gpsToXY_des.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
+            double distToCurrentNode = Math.Sqrt(Math.Pow(x_est - gpsToXY_des.x, 2) + Math.Pow(y_est - gpsToXY_des.y, 2));
             if (distToCurrentNode < distThreshold && gpsIndex + 1 < latList.Length)
             {
                 gpsIndex++;
-                gpsToXY.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
-                x_des = gpsToXY.x;
-                y_des = gpsToXY.y;
-                t_des = Math.Atan2(y_des - y, x_des - x);
+                gpsToXY_des.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
+                x_des = gpsToXY_des.x;
+                y_des = gpsToXY_des.y;
+                t_des = Math.Atan2(y_des - y_est, x_des - x_est);
             }
 
             FlyToSetPoint();
@@ -1084,11 +1129,11 @@ namespace DrRobot.JaguarControl
                 qiText = "Fix not available";
             }
 
-            gpsToXY.CalcCurXY(jaguarControl.gpsRecord.latitude, jaguarControl.gpsRecord.longitude);
+            gpsToXY_est.CalcCurXY(jaguarControl.gpsRecord.latitude, jaguarControl.gpsRecord.longitude);
 
-            x = gpsToXY.x;
-            y = gpsToXY.y;
-            t = NormalizeAngle(t + angleTravelled);
+            x_est = gpsToXY_est.x;
+            y_est = gpsToXY_est.y;
+            t_est = NormalizeAngle(t + angleTravelled);
 
             deltaX = x_des - x_est;
             deltaY = y_des - y_est;
@@ -1120,6 +1165,7 @@ namespace DrRobot.JaguarControl
             // ****************** Additional Student Code: End   ************
         }
 
+        #region particles
 
         public void LocalizeEstWithParticleFilter()
         {
@@ -1355,7 +1401,7 @@ namespace DrRobot.JaguarControl
         }
 
 
-
+#endregion
         // Random number generator with gaussian distribution
         // Often random guassian numbers are used in particle filters. This
         // function might help.

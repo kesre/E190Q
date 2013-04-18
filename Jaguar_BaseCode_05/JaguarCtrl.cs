@@ -1255,68 +1255,68 @@ namespace DrRobot.JaguarControl
 
         private void btnM0_Click(object sender, EventArgs e)
         {
-            navigation.startPoint = 0;
-            buttonReset.PerformClick();
+            navigation.gpsIndex = 0;
+            //buttonReset.PerformClick();
         }
 
         private void btnPoint1_Click(object sender, EventArgs e)
         {
-            navigation.startPoint = 1;
-            buttonReset.PerformClick();
+            navigation.gpsIndex = 0;
+            //buttonReset.PerformClick();
         }
 
         private void btnPoint2_Click(object sender, EventArgs e)
         {
-            navigation.startPoint = 2;
-            buttonReset.PerformClick();
+            navigation.gpsIndex = 1;
+            //buttonReset.PerformClick();
         }
 
         private void btnPoint3_Click(object sender, EventArgs e)
         {
-            navigation.startPoint = 3;
-            buttonReset.PerformClick();
+            navigation.gpsIndex = 2;
+            //buttonReset.PerformClick();
         }
 
         private void btnPoint4_Click(object sender, EventArgs e)
         {
-            navigation.startPoint = 4;
-            buttonReset.PerformClick();
+            navigation.gpsIndex = 3;
+            //buttonReset.PerformClick();
         }
 
         private void btnM1_Click(object sender, EventArgs e)
         {
-            navigation.startPoint = 5;
-            buttonReset.PerformClick();
+            navigation.gpsIndex = 4;
+            //buttonReset.PerformClick();
         }
 
         private void btnPoint6_Click(object sender, EventArgs e)
         {
-            navigation.startPoint = 6;
-            buttonReset.PerformClick();
+            navigation.gpsIndex = 5;
+            //buttonReset.PerformClick();
         }
 
         private void btnPoint8_Click(object sender, EventArgs e)
         {
-            navigation.startPoint = 7;
-            buttonReset.PerformClick();
+            navigation.gpsIndex = 6;
+            //buttonReset.PerformClick();
         }
 
         private void btnPoint9_Click(object sender, EventArgs e)
         {
-            navigation.startPoint = 8;
-            buttonReset.PerformClick();
+            navigation.gpsIndex = 7;
+            //buttonReset.PerformClick();
         }
 
         private void btnPoint10_Click(object sender, EventArgs e)
         {
-            navigation.startPoint = 9;
-            buttonReset.PerformClick();
+            navigation.gpsIndex = 8;
+            //buttonReset.PerformClick();
         }
 
         private void btnM2_Click(object sender, EventArgs e)
         {
-            navigation.startPoint = 10;
-            buttonReset.PerformClick();
+            navigation.gpsIndex = 9;
+            //buttonReset.PerformClick();
         }
 
         # endregion
