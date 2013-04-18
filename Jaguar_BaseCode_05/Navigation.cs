@@ -128,7 +128,7 @@ namespace DrRobot.JaguarControl
         double[] latList = { 3406.380105, 3406.364333, 3406.37696, 3406.374458, 3406.365414, 3406.362289, 3406.36103, 3406.365268, 3406.365044, 3406.363054 };
         double[] longList = { 11742.71921, 11742.68456, 11742.7183, 11742.71629, 11742.7182, 11742.72201, 11742.71994, 11742.71208, 11742.71031, 11742.71111 };
         public int gpsIndex = 0;
-        public double distThreshold = .5;
+        public double distThreshold = 1;
 
         //public class Node
         //{
@@ -178,10 +178,13 @@ namespace DrRobot.JaguarControl
                 x0 = 0;
                 y0 = 0;
 
-                lat1 = ConvertDDDMM_MMMToDDD_DDD(3406.366);
-                long1 = ConvertDDDMM_MMMToDDD_DDD(11742.710);
-                x1 = 30 * Math.Sin(25 * Math.PI / 180);
-                y1 = 30 * Math.Cos(25 * Math.PI / 180);                
+                lat1 = ConvertDDDMM_MMMToDDD_DDD(3406.365843);
+                long1 = ConvertDDDMM_MMMToDDD_DDD(11742.71287);
+                //x1 = 30 * Math.Sin(25 * Math.PI / 180);
+                //y1 = 30 * Math.Cos(25 * Math.PI / 180);    
+                x1 = 2 * r * Math.Asin(Math.Sqrt(Math.Pow(Math.Cos(lat0), 2) * Math.Pow(Math.Sin((long1 - long0) / 2), 2)));
+                y1 = 2 * r * Math.Asin(Math.Sin((lat1 - lat0) / 2));
+                
             }
 
             public double ConvertDDDMM_MMMToDDD_DDD(double gpsCoord)
@@ -192,28 +195,34 @@ namespace DrRobot.JaguarControl
                 minutes = gpsCoord % 100;
                 degrees = (gpsCoord - minutes) / 100;
 
-                newCoord = degrees + (minutes / 60);
-
+                newCoord = (degrees + (minutes / 60)) * Math.PI / 180;
+                //newCoord = gpsCoord * Math.PI / 180;
                 return newCoord;
             }
 
             public void CalcCurXY(double currentLat, double currentLong)
             {
                 // All instances of lat and long need to be divided by 100 due to formatting.
-                //x = 2 * r * Math.Asin(Math.Sqrt(Math.Pow(Math.Cos(lat0 / 100), 2) * Math.Pow(Math.Sin((currentLong - long0) / 200), 2)));
-                //y = 2 * r * Math.Asin(Math.Sin((currentLat - lat0) / 200));
 
                 currentLat = ConvertDDDMM_MMMToDDD_DDD(currentLat);
                 currentLong = ConvertDDDMM_MMMToDDD_DDD(currentLong);
 
+                //x = 2 * r * Math.Asin(Math.Sqrt(Math.Pow(Math.Cos(lat0), 2) * Math.Pow(Math.Sin((currentLong - long0) / 2), 2)));
+                //y = 2 * r * Math.Asin(Math.Sin((currentLat - lat0) / 2));
+                
+                /*
+                
+
                 x = (currentLat - lat0) * (x1 - x0) / (lat1 - lat0);
                 y = (currentLong - long0) * (y1 - y0) / (long1 - long0);
-
-                //double distance = 2 * r * Math.Asin(Math.Sqrt(Math.Pow(Math.Sin((currentLat - lat0)/(2)),2) + 
-                //    Math.Cos(currentLat) * Math.Cos(lat0) * Math.Pow(Math.Sin((currentLong - long0)/(2)),2)));
-                //double currentAngle = Math.Atan2((currentLat - lat0), (currentLong - long0));
-                //x = Math.Cos(currentAngle) * distance;
-                //y = Math.Sin(currentAngle) * distance;
+                */
+                
+                double distance = 2 * r * Math.Asin(Math.Sqrt(Math.Pow(Math.Sin((currentLat - lat0) / (2)), 2) +
+                    Math.Cos(currentLat) * Math.Cos(lat0) * Math.Pow(Math.Sin((currentLong - long0) / (2)), 2)));
+                double currentAngle = Math.Atan2((currentLat - lat0), (currentLong - long0));
+                x = Math.Cos(currentAngle) * distance;
+                y = Math.Sin(currentAngle) * distance;
+                
             }
         }
 
@@ -254,8 +263,10 @@ namespace DrRobot.JaguarControl
                 totalLong += jaguarControl.gpsRecord.longitude;
             }
 
-            gpsToXY_est = new GPStoXY(0, 0, totalLat/numGPSAvg, totalLong/numGPSAvg);
-            gpsToXY_des = new GPStoXY(0, 0, totalLat / numGPSAvg, totalLong / numGPSAvg);
+            //gpsToXY_est = new GPStoXY(0, 0, totalLat/numGPSAvg, totalLong/numGPSAvg);
+            //gpsToXY_des = new GPStoXY(0, 0, totalLat / numGPSAvg, totalLong / numGPSAvg);
+            gpsToXY_est = new GPStoXY(0, 0, 3406.379125, 11742.71771);
+            gpsToXY_des = new GPStoXY(0, 0, 3406.379125, 11742.71771);
 
             this.Initialize();
 
@@ -1108,6 +1119,8 @@ namespace DrRobot.JaguarControl
         public void LocalizeRealWithGPS()
         {
             string qiText;
+            jaguarControl.gpsRecord.longitude = 11742.71947;
+            jaguarControl.gpsRecord.latitude = 3406.373997;
             if (jaguarControl.gpsRecord.qi == 0)
             {
                 qiText = "Fix not available";
@@ -1133,7 +1146,7 @@ namespace DrRobot.JaguarControl
 
             x_est = gpsToXY_est.x;
             y_est = gpsToXY_est.y;
-            t_est = NormalizeAngle(t + angleTravelled);
+            t_est = NormalizeAngle(t_est + angleTravelled);
 
             deltaX = x_des - x_est;
             deltaY = y_des - y_est;
@@ -1297,6 +1310,7 @@ namespace DrRobot.JaguarControl
             //t_est = tSum / totalWeight;
 
             //for PRM testing
+            
             x_est = x;
             y_est = y;
             t_est = t;
