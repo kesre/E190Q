@@ -125,8 +125,8 @@ namespace DrRobot.JaguarControl
         public double originLong = 11742.71995;    //11742.70931;
         public GPStoXY gpsToXY_est;
         public GPStoXY gpsToXY_des;
-        double[] latList = { 3406.380105, 3406.364333, 3406.37696, 3406.374458, 3406.365414, 3406.362289, 3406.36103, 3406.365268, 3406.365044, 3406.363054 };
-        double[] longList = { 11742.71921, 11742.68456, 11742.7183, 11742.71629, 11742.7182, 11742.72201, 11742.71994, 11742.71208, 11742.71031, 11742.71111 };
+        double[] latList = { 3406.380506, 3406.370253, 3406.368802, 3406.365393, 3406.366269, 3406.362289, 3406.36103, 3406.365268, 3406.365044, 3406.363054 };
+        double[] longList = { 11742.72072, 11742.72321, 11742.72271, 11742.72127, 11742.71517, 11742.72201, 11742.71994, 11742.71208, 11742.71031, 11742.71111 };
         public int gpsIndex = 0;
         public double distThreshold = 1;
 
@@ -263,10 +263,10 @@ namespace DrRobot.JaguarControl
                 totalLong += jaguarControl.gpsRecord.longitude;
             }
 
-            //gpsToXY_est = new GPStoXY(0, 0, totalLat/numGPSAvg, totalLong/numGPSAvg);
-            //gpsToXY_des = new GPStoXY(0, 0, totalLat / numGPSAvg, totalLong / numGPSAvg);
-            gpsToXY_est = new GPStoXY(0, 0, 3406.379125, 11742.71771);
-            gpsToXY_des = new GPStoXY(0, 0, 3406.379125, 11742.71771);
+            gpsToXY_est = new GPStoXY(0, 0, totalLat/numGPSAvg, totalLong/numGPSAvg);
+            gpsToXY_des = new GPStoXY(0, 0, totalLat / numGPSAvg, totalLong / numGPSAvg);
+            //gpsToXY_est = new GPStoXY(0, 0, 3406.379125, 11742.71771);
+            //gpsToXY_des = new GPStoXY(0, 0, 3406.379125, 11742.71771);
 
             this.Initialize();
 
@@ -1119,8 +1119,8 @@ namespace DrRobot.JaguarControl
         public void LocalizeRealWithGPS()
         {
             string qiText;
-            jaguarControl.gpsRecord.longitude = 11742.71947;
-            jaguarControl.gpsRecord.latitude = 3406.373997;
+            //jaguarControl.gpsRecord.longitude = 11742.71947;
+            //jaguarControl.gpsRecord.latitude = 3406.373997;
             if (jaguarControl.gpsRecord.qi == 0)
             {
                 qiText = "Fix not available";

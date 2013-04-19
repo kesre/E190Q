@@ -325,10 +325,18 @@ namespace DrRobot.JaguarControl
                 imuRecord.gyro_y = gyro_y;
                 imuRecord.gyro_z = gyro_z;
                 imuRecord.index = seqNo;
-                imuRecord.magn_x = double.Parse(data[7]);
-                imuRecord.magn_y = double.Parse(data[8]);
+                double mx = double.Parse(data[7]);
+                double my = double.Parse(data[8]);
                 data[9] = data[9].Remove(data[9].Length - 1, 1);
-                imuRecord.magn_z = double.Parse(data[9]);
+                double mz = double.Parse(data[9]);
+
+                if (Math.Abs(mx) > .001)
+                {
+                    imuRecord.magn_x = mx;
+                    imuRecord.magn_y = my;
+                    imuRecord.magn_z = mz;
+                }
+
                 
                 //for drawing
                 draw_AccelX[drawEndPoint] = accel_x - accel_x_offset;
