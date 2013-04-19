@@ -130,6 +130,17 @@ namespace DrRobot.JaguarControl
         public int gpsIndex = 0;
         public double distThreshold = 1;
 
+        // Variables for tolerance
+        double collisionTolerance = .5;
+        double avoidanceTolerance = 1;
+        int collisionAngleMinIndex = (int) ((Math.Abs(DrRobot.JaguarControl.JaguarCtrl.startAng) - 45) / 
+            DrRobot.JaguarControl.JaguarCtrl.stepAng); // -45 deg;
+        int collisionAngleMaxIndex = (int) ((Math.Abs(DrRobot.JaguarControl.JaguarCtrl.startAng) + 45) / 
+            DrRobot.JaguarControl.JaguarCtrl.stepAng); // 45 deg;
+        double angleIndexStep = 3;
+        
+
+
         //public class Node
         //{
         //    public double x, y, t;
@@ -419,6 +430,7 @@ namespace DrRobot.JaguarControl
                     {
                         // Determine the desired PWM signals for desired wheel speeds
                         CalcMotorSignals();
+                        WallPositioning();
                         ActuateMotorsWithPWMControl();
                     }
 
@@ -752,22 +764,37 @@ namespace DrRobot.JaguarControl
         // It will drive the robot forward or backward to position the robot 
         // 1 meter from the wall.
         private void WallPositioning()
-        {
+        {         
+            // Start out invalid.
+            double minDistanceAngle = 0;
 
-            // Here is the distance measurement for the central laser beam 
-            double centralLaserRange = LaserData[113];
-
-            // ****************** Additional Student Code: Start ************
-
-            // Put code here to calculated motorSignalR and 
-            // motorSignalL. Make sure the robot does not exceed 
-            // maxVelocity!!!!!!!!!!!!
-
-            // Send Control signals, put negative on left wheel control
-
-
-
-            // ****************** Additional Student Code: End   ************                
+            // Get closest distance
+            double minDistance = 10.0;
+            for (int angleInd = collisionAngleMinIndex; angleInd < collisionAngleMaxIndex; angleInd+= 3)
+            {
+            	// Valid readings should always be greater than .2 meters out.
+                if (LaserData[angleInd] / 1000 < minDistance && LaserData[angleInd] > 200)
+                {
+                    minDistance = LaserData[angleInd] / 1000;
+                    minDistanceAngle = laserAngles[angleInd]; // Add angle math from particle filter.
+                }
+            }
+            
+            if (minDistance < collisionTolerance)
+            {
+                motorSignalL = 0;
+                motorSignalR = 0;
+            	// Maybe backup	
+            }
+            else if (minDistance < avoidanceTolerance)
+            {
+            	// Change v and w based on sign of minDistanceAngle (probably can use constant velocities).
+            	// Goal is to have robot past 45 of the wall
+            	// If this doesn't work, only use minDistance if the rest of the range isn't lower 
+            	// (except for collision prevention).
+                motorSignalL = (short) (Math.Sign(minDistanceAngle) * 23);
+                motorSignalR = (short) (Math.Sign(minDistanceAngle) * 23);
+            }
         }
 
 
