@@ -130,17 +130,17 @@ namespace DrRobot.JaguarControl
         static double pi = Math.PI;
         double[] latList = { 3406.37098, 3406.37081, 3406.36851, 3406.365393, 3406.366269, 3406.362289, 3406.36103, 3406.365268, 3406.365044, 3406.363054 };
         double[] longList = { 11742.7141, 11742.7143, 11742.71351, 11742.72127, 11742.71517, 11742.72201, 11742.71994, 11742.71208, 11742.71031, 11742.71111 };
-        double[] pointListRelX = {4.98, 10.35,     0,  5.0, 9.56,    0,    0,   0,    0};
-        double[] pointListRelY = { 1.9,     0,  -1.9,    0,  1.9,    2, 5.33, 5.5, 9.16};
-        double[] pointListRelT = {piD2, -piD2, -piD2, piD2,    0, piD2,    0,   0,   pi};
+        double[] pointListRelX = {4.98, 10.35,  5.0, 9.56,    0,    0,   0,    0};
+        double[] pointListRelY = { 1.9,     0, -1.9,    2,    3, 4.33, 5.5, 9.16};
+        double[] pointListRelT = {piD2, -piD2,    0,    0, piD2,    0,   0,   pi};
         public int gpsIndex = 0;
         public double distThreshold = .5;
         public double thThreshold = Math.PI / 10;
         public bool gpsNonInitialized = true;
 
-        public double magnSignZero = -50;
-        public double magnMagSlope = 220 / Math.PI;
-        public double magnMagZero = -200;
+        public double magnSignZero = -34;
+        public double magnMagSlope = 165 / Math.PI;
+        public double magnMagZero = -132;
 
 
         // Variables for tolerance
@@ -865,7 +865,7 @@ namespace DrRobot.JaguarControl
             }
             else if (Math.Abs(deltaTh) > .2)
             {
-                desiredW = 1.1 * deltaTh;
+                desiredW = .7 * deltaTh;
             }
             else
             {
@@ -894,11 +894,14 @@ namespace DrRobot.JaguarControl
             double distToCurrentNode = Math.Sqrt(Math.Pow(x_est - x_des, 2) + Math.Pow(y_est - y_des, 2));
             if (distToCurrentNode < distThreshold && gpsIndex + 1 < pointListRelX.Length && deltaTh < thThreshold)
             {
-                gpsIndex++;
-                //gpsToXY_des.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
-                x_des += pointListRelX[gpsIndex];
-                y_des += pointListRelY[gpsIndex];
-                t_des += pointListRelT[gpsIndex];
+                if (gpsIndex < pointListRelX.Length)
+                {
+                    gpsIndex++;
+                    //gpsToXY_des.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
+                    x_des += pointListRelX[gpsIndex];
+                    y_des += pointListRelY[gpsIndex];
+                    t_des += pointListRelT[gpsIndex];
+                }
             }
 
             FlyToSetPoint();
@@ -1156,10 +1159,10 @@ namespace DrRobot.JaguarControl
             t_est = t_est + angleTravelled;
 
             // Ensure theta value stays between Pi and -Pi
-            if (jaguarControl.imuRecord.magn_x > 0 && gpsIndex < 5)
+            if (jaguarControl.imuRecord.magn_y > 0)
             {
-                double tSign = Math.Sign(jaguarControl.imuRecord.magn_x - magnSignZero);
-                t_est = (jaguarControl.imuRecord.magn_y - magnMagZero) * magnMagSlope * tSign;
+                double tSign = Math.Sign(jaguarControl.imuRecord.magn_y - magnSignZero);
+                t_est = (jaguarControl.imuRecord.magn_x - magnMagZero) * magnMagSlope * tSign;
             }
             t_est = NormalizeAngle(t_est);
 
