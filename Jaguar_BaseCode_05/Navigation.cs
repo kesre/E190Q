@@ -465,7 +465,7 @@ namespace DrRobot.JaguarControl
 
                         // Determine the desired PWM signals for desired wheel speeds
                         CalcMotorSignals();
-                        WallPositioning();
+                        //WallPositioning();
                         ActuateMotorsWithPWMControl();
                     }
 
@@ -808,7 +808,7 @@ namespace DrRobot.JaguarControl
             for (int angleInd = collisionAngleMinIndex; angleInd < collisionAngleMaxIndex; angleInd += 3)
             {
                 // Valid readings should always be greater than .2 meters out.
-                if ((LaserData[angleInd] / 100 < minDistance) && LaserData[angleInd] > 20)
+                if ((LaserData[angleInd] / 1000 < minDistance) && LaserData[angleInd] > 200)
                 {
                     minDistance = LaserData[angleInd] / 100;
                     minDistanceAngle = laserAngles[angleInd]; // Add angle math from particle filter.
@@ -1156,7 +1156,7 @@ namespace DrRobot.JaguarControl
             t_est = t_est + angleTravelled;
 
             // Ensure theta value stays between Pi and -Pi
-            if (jaguarControl.imuRecord.magn_x > 0)
+            if (jaguarControl.imuRecord.magn_x > 0 && gpsIndex < 5)
             {
                 double tSign = Math.Sign(jaguarControl.imuRecord.magn_x - magnSignZero);
                 t_est = (jaguarControl.imuRecord.magn_y - magnMagZero) * magnMagSlope * tSign;
