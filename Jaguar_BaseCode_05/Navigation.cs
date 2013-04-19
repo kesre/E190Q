@@ -125,18 +125,31 @@ namespace DrRobot.JaguarControl
         public double originLong = 11742.71995;    //11742.70931;
         public GPStoXY gpsToXY_est;
         public GPStoXY gpsToXY_des;
-        double[] latList = { 3406.380506, 3406.370253, 3406.368802, 3406.365393, 3406.366269, 3406.362289, 3406.36103, 3406.365268, 3406.365044, 3406.363054 };
-        double[] longList = { 11742.72072, 11742.72321, 11742.72271, 11742.72127, 11742.71517, 11742.72201, 11742.71994, 11742.71208, 11742.71031, 11742.71111 };
+        static double piD2 = Math.PI / 2;
+        static double thrPiD4 = 3 * Math.PI / 4;
+        static double pi = Math.PI;
+        double[] latList = { 3406.37098, 3406.37081, 3406.36851, 3406.365393, 3406.366269, 3406.362289, 3406.36103, 3406.365268, 3406.365044, 3406.363054 };
+        double[] longList = { 11742.7141, 11742.7143, 11742.71351, 11742.72127, 11742.71517, 11742.72201, 11742.71994, 11742.71208, 11742.71031, 11742.71111 };
+        double[] pointListRelX = {4.98, 10.35,     0,  5.0, 9.56,    0,    0,   0,    0};
+        double[] pointListRelY = { 1.9,     0,  -1.9,    0,  1.9,    2, 5.33, 5.5, 9.16};
+        double[] pointListRelT = {piD2, -piD2, -piD2, piD2,    0, piD2,    0,   0,   pi};
         public int gpsIndex = 0;
-        public double distThreshold = 1;
+        public double distThreshold = .5;
+        public double thThreshold = Math.PI / 10;
+        public bool gpsNonInitialized = true;
+
+        public double magnSignZero = -50;
+        public double magnMagSlope = 220 / Math.PI;
+        public double magnMagZero = -200;
+
 
         // Variables for tolerance
         double collisionTolerance = .5;
         double avoidanceTolerance = 1;
-        int collisionAngleMinIndex = (int) ((Math.Abs(DrRobot.JaguarControl.JaguarCtrl.startAng) - 45) / 
-            DrRobot.JaguarControl.JaguarCtrl.stepAng); // -45 deg;
-        int collisionAngleMaxIndex = (int) ((Math.Abs(DrRobot.JaguarControl.JaguarCtrl.startAng) + 45) / 
-            DrRobot.JaguarControl.JaguarCtrl.stepAng); // 45 deg;
+        int collisionAngleMinIndex = 56; //(int) (Math.Abs(DrRobot.JaguarControl.JaguarCtrl.startAng - (45/180 * Math.PI)) / 
+        //    DrRobot.JaguarControl.JaguarCtrl.stepAng); // -45 deg;
+        int collisionAngleMaxIndex = 169; //(int)(Math.Abs(DrRobot.JaguarControl.JaguarCtrl.startAng + (45/180 * Math.PI)) / 
+        //    DrRobot.JaguarControl.JaguarCtrl.stepAng); // 45 deg;
         double angleIndexStep = 3;
         
 
@@ -264,20 +277,7 @@ namespace DrRobot.JaguarControl
             //    propagatedParticles.Add(new Particle());
             //}
 
-            int numGPSAvg = 100;
-            double totalLat = 0;
-            double totalLong = 0;
-
-            for (int i = 0; i < numGPSAvg; i++)
-            {
-                totalLat += jaguarControl.gpsRecord.latitude;
-                totalLong += jaguarControl.gpsRecord.longitude;
-            }
-
-            gpsToXY_est = new GPStoXY(0, 0, totalLat/numGPSAvg, totalLong/numGPSAvg);
-            gpsToXY_des = new GPStoXY(0, 0, totalLat / numGPSAvg, totalLong / numGPSAvg);
-            //gpsToXY_est = new GPStoXY(0, 0, 3406.379125, 11742.71771);
-            //gpsToXY_des = new GPStoXY(0, 0, 3406.379125, 11742.71771);
+            
 
             this.Initialize();
 
@@ -287,10 +287,38 @@ namespace DrRobot.JaguarControl
             controlThread.Start();
         }
 
+        public void InitializeGPS()
+        {
+            int numGPSAvg = 100;
+            double totalLat = 0;
+            double totalLong = 0;
+
+            for (int i = 0; i < numGPSAvg; i++)
+            {
+                totalLat += jaguarControl.gpsRecord.latitude / numGPSAvg;
+                totalLong += jaguarControl.gpsRecord.longitude / numGPSAvg;
+            }
+
+            gpsToXY_est = new GPStoXY(0, 0, totalLat, totalLong);
+            gpsToXY_des = new GPStoXY(0, 0, totalLat, totalLong);
+
+            //gpsToXY_est = new GPStoXY(0, 0, 3406.38352, 11742.71921);
+            //gpsToXY_des = new GPStoXY(0, 0, 3406.38352, 11742.71921);
+
+            gpsToXY_des.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
+            x_des = gpsToXY_des.x;
+            y_des = gpsToXY_des.y;
+            t_des = 0;
+            gpsNonInitialized = false;
+        }
+
         // All class variables are initialized here
         // This is called every time the reset button is pressed
         public void Initialize()
-        {            
+        {
+
+            
+
             // Initialize state estimates
             x = 0;//initialX;
             y = 0;//initialY;
@@ -302,9 +330,9 @@ namespace DrRobot.JaguarControl
             t_est = 0;//initialT;
 
             // Set desired state
-            x_des = 0;
-            y_des = 0;
-            t_des = 0;  //Maybe change later
+            x_des = pointListRelX[0];
+            y_des = pointListRelY[0];
+            t_des = pointListRelT[0];  //Maybe change later
 
             //desiredX = 0;// initialX;
             //desiredY = 0;// initialY;
@@ -415,10 +443,7 @@ namespace DrRobot.JaguarControl
                     //FlyToSetPoint();
 
 
-                    LocalizeRealWithGPS();
-
-                    // Follow the trajectory instead of a desired point (lab 3)
-                    TrackTrajectory();
+                    
 
                     // Actuate motors based actuateMotorL and actuateMotorR
                     if (jaguarControl.Simulating())
@@ -428,6 +453,16 @@ namespace DrRobot.JaguarControl
                     }
                     else
                     {
+                        //if (gpsNonInitialized)
+                        //{
+                        //    InitializeGPS();
+                        //}
+                        //LocalizeRealWithGPS();
+                        LocalizeRealWithOdometry();
+
+                        // Follow the trajectory instead of a desired point (lab 3)
+                        TrackTrajectory();
+
                         // Determine the desired PWM signals for desired wheel speeds
                         CalcMotorSignals();
                         WallPositioning();
@@ -764,36 +799,36 @@ namespace DrRobot.JaguarControl
         // It will drive the robot forward or backward to position the robot 
         // 1 meter from the wall.
         private void WallPositioning()
-        {         
+        {
             // Start out invalid.
             double minDistanceAngle = 0;
 
             // Get closest distance
             double minDistance = 10.0;
-            for (int angleInd = collisionAngleMinIndex; angleInd < collisionAngleMaxIndex; angleInd+= 3)
+            for (int angleInd = collisionAngleMinIndex; angleInd < collisionAngleMaxIndex; angleInd += 3)
             {
-            	// Valid readings should always be greater than .2 meters out.
-                if (LaserData[angleInd] / 1000 < minDistance && LaserData[angleInd] > 200)
+                // Valid readings should always be greater than .2 meters out.
+                if ((LaserData[angleInd] / 100 < minDistance) && LaserData[angleInd] > 20)
                 {
-                    minDistance = LaserData[angleInd] / 1000;
+                    minDistance = LaserData[angleInd] / 100;
                     minDistanceAngle = laserAngles[angleInd]; // Add angle math from particle filter.
                 }
             }
-            
+
             if (minDistance < collisionTolerance)
             {
                 motorSignalL = 0;
                 motorSignalR = 0;
-            	// Maybe backup	
+                // Maybe backup	
             }
             else if (minDistance < avoidanceTolerance)
             {
-            	// Change v and w based on sign of minDistanceAngle (probably can use constant velocities).
-            	// Goal is to have robot past 45 of the wall
-            	// If this doesn't work, only use minDistance if the rest of the range isn't lower 
-            	// (except for collision prevention).
-                motorSignalL = (short) (Math.Sign(minDistanceAngle) * 23);
-                motorSignalR = (short) (Math.Sign(minDistanceAngle) * 23);
+                // Change v and w based on sign of minDistanceAngle (probably can use constant velocities).
+                // Goal is to have robot past 45 of the wall
+                // If this doesn't work, only use minDistance if the rest of the range isn't lower 
+                // (except for collision prevention).
+                motorSignalL = (short)(Math.Sign(minDistanceAngle) * -23);
+                motorSignalR = (short)(Math.Sign(minDistanceAngle) * 23);
             }
         }
 
@@ -830,7 +865,7 @@ namespace DrRobot.JaguarControl
             }
             else if (Math.Abs(deltaTh) > .2)
             {
-                desiredW = .3 * deltaTh;
+                desiredW = 1.1 * deltaTh;
             }
             else
             {
@@ -855,15 +890,15 @@ namespace DrRobot.JaguarControl
         // THis function is called to follow a trajectory constructed by PRMMotionPlanner()
         private void TrackTrajectory()
         {
-            gpsToXY_des.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
-            double distToCurrentNode = Math.Sqrt(Math.Pow(x_est - gpsToXY_des.x, 2) + Math.Pow(y_est - gpsToXY_des.y, 2));
-            if (distToCurrentNode < distThreshold && gpsIndex + 1 < latList.Length)
+            //gpsToXY_des.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
+            double distToCurrentNode = Math.Sqrt(Math.Pow(x_est - x_des, 2) + Math.Pow(y_est - y_des, 2));
+            if (distToCurrentNode < distThreshold && gpsIndex + 1 < pointListRelX.Length && deltaTh < thThreshold)
             {
                 gpsIndex++;
-                gpsToXY_des.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
-                x_des = gpsToXY_des.x;
-                y_des = gpsToXY_des.y;
-                t_des = Math.Atan2(y_des - y_est, x_des - x_est);
+                //gpsToXY_des.CalcCurXY(latList[gpsIndex], longList[gpsIndex]);
+                x_des += pointListRelX[gpsIndex];
+                y_des += pointListRelY[gpsIndex];
+                t_des += pointListRelT[gpsIndex];
             }
 
             FlyToSetPoint();
@@ -1116,12 +1151,21 @@ namespace DrRobot.JaguarControl
             // Make sure t stays between pi and -pi
 
             // Update the actual
-            x = x + distanceTravelled * Math.Cos(t + 0.5 * angleTravelled);
-            y = y + distanceTravelled * Math.Sin(t + 0.5 * angleTravelled);
-            t = t + angleTravelled;
+            x_est = x_est + distanceTravelled * Math.Cos(t_est + 0.5 * angleTravelled);
+            y_est = y_est + distanceTravelled * Math.Sin(t_est + 0.5 * angleTravelled);
+            t_est = t_est + angleTravelled;
 
             // Ensure theta value stays between Pi and -Pi
-            t = NormalizeAngle(t);
+            if (jaguarControl.imuRecord.magn_x > 0)
+            {
+                double tSign = Math.Sign(jaguarControl.imuRecord.magn_x - magnSignZero);
+                t_est = (jaguarControl.imuRecord.magn_y - magnMagZero) * magnMagSlope * tSign;
+            }
+            t_est = NormalizeAngle(t_est);
+
+            x = x_est;
+            y = y_est;
+            t = t_est;
 
             deltaX = x_des - x_est;
             deltaY = y_des - y_est;
@@ -1146,8 +1190,8 @@ namespace DrRobot.JaguarControl
         public void LocalizeRealWithGPS()
         {
             string qiText;
-            //jaguarControl.gpsRecord.longitude = 11742.71947;
-            //jaguarControl.gpsRecord.latitude = 3406.373997;
+            //jaguarControl.gpsRecord.longitude = 11742.719;
+            //jaguarControl.gpsRecord.latitude = 3406.38426;
             if (jaguarControl.gpsRecord.qi == 0)
             {
                 qiText = "Fix not available";
@@ -1174,7 +1218,8 @@ namespace DrRobot.JaguarControl
             x_est = gpsToXY_est.x;
             y_est = gpsToXY_est.y;
             t_est = NormalizeAngle(t_est + angleTravelled);
-
+           // x = x_est;
+            //y = y_est;
             deltaX = x_des - x_est;
             deltaY = y_des - y_est;
             deltaTh = NormalizeAngle(t_des - t_est);
