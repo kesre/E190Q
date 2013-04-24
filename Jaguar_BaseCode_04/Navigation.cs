@@ -123,6 +123,10 @@ namespace DrRobot.JaguarControl
         private double mic7;
         private double mic8;
 
+        // Magnetometer constants
+        public double magnSignZero = -34;
+        public double magnMagSlope = 165 / Math.PI;
+        public double magnMagZero = -132;
         #endregion
 
 
@@ -799,6 +803,16 @@ namespace DrRobot.JaguarControl
             // ****************** Additional Student Code: End   ************
         }
 
+
+        public void LocalizeTRealWithMagnetometer()
+        {
+            if (jaguarControl.imuRecord.magn_y > 0)
+            {
+                double tSign = Math.Sign(jaguarControl.imuRecord.magn_y - magnSignZero);
+                t_est = (jaguarControl.imuRecord.magn_x - magnMagZero) * magnMagSlope * tSign;
+            }
+            t_est = NormalizeAngle(t_est);
+        }
         // This function will Localize the robot, i.e. set the robot position
         // defined by x,y,t using the last position with angleTravelled and
         // distance travelled.
