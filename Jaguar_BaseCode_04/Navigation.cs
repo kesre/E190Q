@@ -113,6 +113,16 @@ namespace DrRobot.JaguarControl
         private double centerX = 0;
         private double centerY = 0;
 
+        // Microphone values
+        private double mic1;
+        private double mic2;
+        private double mic3;
+        private double mic4;
+        private double mic5;
+        private double mic6;
+        private double mic7;
+        private double mic8;
+
         #endregion
 
 
@@ -413,6 +423,18 @@ namespace DrRobot.JaguarControl
                     currentEncoderPulseL = jaguarControl.realJaguar.GetEncoderPulse4();
                     currentEncoderPulseR = jaguarControl.realJaguar.GetEncoderPulse5();
 
+                    // Update Microphone Measurements
+
+                    mic1 = jaguarControl.realJaguar.GetSensorHumanMotion1();
+                    mic2 = jaguarControl.realJaguar.GetSensorHumanAlarm1();
+                    mic3 = jaguarControl.realJaguar.GetSensorHumanMotion2();
+                    mic4 = jaguarControl.realJaguar.GetSensorHumanAlarm2();
+                    mic5 = jaguarControl.realJaguar.GetSensorTemperature();
+                    mic6 = jaguarControl.realJaguar.GetSensorIRRange();
+                    mic7 = jaguarControl.realJaguar.GetSensorTiltingY();
+                    mic8 = jaguarControl.realJaguar.GetSensorTiltingX();
+                    
+
                 }
                 catch (Exception e)
                 {
@@ -569,7 +591,15 @@ namespace DrRobot.JaguarControl
             {
                 TimeSpan ts = DateTime.Now - startTime;
                 time = ts.TotalSeconds;
-                 String newData = time.ToString() + " " + x.ToString() + " " + y.ToString() + " " + t.ToString() ;
+                String newData = time.ToString() + " " +
+                    mic1.ToString() + " " +
+                    mic2.ToString() + " " +
+                    mic3.ToString() + " " +
+                    mic4.ToString() + " " +
+                    mic5.ToString() + " " +
+                    mic6.ToString() + " " +
+                    mic7.ToString() + " " +
+                    mic8.ToString();
 
                 logFile.WriteLine(newData);
             }
