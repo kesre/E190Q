@@ -312,7 +312,7 @@ namespace DrRobot.JaguarControl
 
 
                 // Draw State Estimate
-                g.DrawPie(estimatePen, (int)(xCenter - partHalfSize + mapResolution * navigation.x_est), (int)(yCenter - partHalfSize - mapResolution * navigation.y_est), partSize, partSize, (int)(-navigation.t_est * 180 / 3.14 - 180 - 25), 50);
+                //g.DrawPie(estimatePen, (int)(xCenter - partHalfSize + mapResolution * navigation.x_est), (int)(yCenter - partHalfSize - mapResolution * navigation.y_est), partSize, partSize, (int)(-navigation.t_est * 180 / 3.14 - 180 - 25), 50);
 
                 // Paint background of bitmap
                 g.FillRectangle(Brushes.LightGray, new Rectangle(xMin - 40, yMin, 40, paneHeight));
