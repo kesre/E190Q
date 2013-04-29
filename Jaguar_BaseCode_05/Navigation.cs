@@ -462,10 +462,10 @@ namespace DrRobot.JaguarControl
 
                         // Follow the trajectory instead of a desired point (lab 3)
                         TrackTrajectory();
-
+                        WallPositioning();
                         // Determine the desired PWM signals for desired wheel speeds
                         CalcMotorSignals();
-                        //WallPositioning();
+                        
                         ActuateMotorsWithPWMControl();
                     }
 
@@ -817,8 +817,8 @@ namespace DrRobot.JaguarControl
 
             if (minDistance < collisionTolerance)
             {
-                motorSignalL = 0;
-                motorSignalR = 0;
+                desiredV = 0;
+                desiredW = 0;
                 // Maybe backup	
             }
             else if (minDistance < avoidanceTolerance)
@@ -827,8 +827,20 @@ namespace DrRobot.JaguarControl
                 // Goal is to have robot past 45 of the wall
                 // If this doesn't work, only use minDistance if the rest of the range isn't lower 
                 // (except for collision prevention).
-                motorSignalL = (short)(Math.Sign(minDistanceAngle) * -23);
-                motorSignalR = (short)(Math.Sign(minDistanceAngle) * 23);
+                desiredV = 0;
+                desiredW = .7 * Math.Sign(minDistanceAngle) * (45 - Math.Abs(minDistanceAngle));
+
+                double omegaL, omegaR;
+                double dPhiL, dPhiR;
+                omegaL = .5 * (desiredV - desiredW / robotRadius);
+                omegaR = .5 * (desiredV + desiredW / robotRadius);
+
+                dPhiL = omegaL * robotRadius * 2 / wheelRadius;
+                dPhiR = omegaR * robotRadius * 2 / wheelRadius;
+
+                desiredRotRateL = (short)(dPhiL * pulsesPerRotation / (2 * Math.PI));
+                desiredRotRateR = (short)(dPhiR * pulsesPerRotation / (2 * Math.PI));
+
             }
         }
 
