@@ -122,18 +122,21 @@ namespace DrRobot.JaguarControl
         private double[] mic2Background;
         private double[] mic3Background;
         private double[] mic4Background;
-        private double mic1Log, mic2Log, mic3Log, mic4Log;
         private double mic1BackAve;
         private double mic2BackAve;
         private double mic3BackAve;
         private double mic4BackAve;
-        private double sumThreshhold = 500;
+        private double sumThreshhold = 550;
         private int maxMicDataPoints = 200;
         private int backgroundDataPoints = 2400;
         private bool micInit = false;
         private int micIndex = 0;
         private int micDirection = 0;
         private double mic1Sum, mic2Sum, mic3Sum, mic4Sum, micMax;
+        private double[] micSum;
+        private int numMics = 4;
+        private double[] micAng = { -Math.PI / 2, 0, Math.PI / 2, Math.PI};
+        private double soundAngle = -1;
 
         // Magnetometer constants
         public double magnSignZero = -34;
@@ -227,6 +230,8 @@ namespace DrRobot.JaguarControl
             mic2 = new double[maxMicDataPoints];
             mic3 = new double[maxMicDataPoints];
             mic4 = new double[maxMicDataPoints];
+
+            micSum = new double[numMics];
 
             for (int i = 0; i < backgroundDataPoints; i++)
             {
@@ -479,15 +484,11 @@ namespace DrRobot.JaguarControl
                         mic2[micIndex] = jaguarControl.realJaguar.GetSensorHumanAlarm1() - mic2BackAve;
                         mic3[micIndex] = jaguarControl.realJaguar.GetSensorHumanMotion2() - mic3BackAve;
                         mic4[micIndex] = jaguarControl.realJaguar.GetSensorHumanAlarm2() - mic4BackAve;
-                        mic1Log = mic1[micIndex];
-                        mic2Log = mic2[micIndex];
-                        mic3Log = mic3[micIndex];
-                        mic4Log = mic4[micIndex];
                         micIndex++;
                     }
                     else
                     {
-                        CalcMicDirection();
+                        soundAngle = CalcMicDirection();
                         micIndex = 0;
                     }
 
@@ -498,38 +499,61 @@ namespace DrRobot.JaguarControl
             }
         }
 
-        private void CalcMicDirection()
+        private double CalcMicDirection()
         {
 
-            mic1Sum = Math.Abs(mic1.Sum());
-            mic2Sum = Math.Abs(mic2.Sum());
-            mic3Sum = Math.Abs(mic3.Sum());
-            mic4Sum = Math.Abs(mic4.Sum());
+            micSum[0] = Math.Abs(mic1.Sum()); // Right
+            micSum[1] = Math.Abs(mic2.Sum()); // Front
+            micSum[2] = Math.Abs(mic3.Sum()); // Left
+            micSum[3] = Math.Abs(mic4.Sum()); // Back
 
-            micMax = Math.Max(mic1Sum, Math.Max(mic2Sum, Math.Max(mic3Sum, mic4Sum)));
+            // Math.Max(mic1Sum, Math.Max(mic2Sum, Math.Max(mic3Sum, mic4Sum)));
+            micMax = micSum.Max();
 
-            if ((mic1Sum == micMax) && (mic1Sum > sumThreshhold))
+            micDirection = -1;
+            for (int i = 0; i < numMics; i++)
             {
-                micDirection = 1;
+                if (micSum[i] == micMax && micMax > sumThreshhold)
+                {
+                    micDirection = i;
+                    break;
+                }
             }
-            else if ((mic2Sum == micMax) && (mic2Sum > sumThreshhold))
-            {
-                micDirection = 2;
-            }
-            else if ((mic3Sum == micMax) && (mic3Sum > sumThreshhold))
-            {
-                micDirection = 3;
-            }
-            else if ((mic4Sum == micMax) && (mic4Sum > sumThreshhold))
-            {
-                micDirection = 4;
-            }
-            else micDirection = 0;
+            //if ((mic1Sum == micMax) && (mic1Sum > sumThreshhold))
+            //{
+            //    micDirection = 1;
+            //}
+            //else if ((mic2Sum == micMax) && (mic2Sum > sumThreshhold))
+            //{
+            //    micDirection = 2;
+            //}
+            //else if ((mic3Sum == micMax) && (mic3Sum > sumThreshhold))
+            //{
+            //    micDirection = 3;
+            //}
+            //else if ((mic4Sum == micMax) && (mic4Sum > sumThreshhold))
+            //{
+            //    micDirection = 4;
+            //}
+            //else micDirection = 0;
 
             Array.Clear(mic1, 0, maxMicDataPoints);
             Array.Clear(mic2, 0, maxMicDataPoints);
             Array.Clear(mic3, 0, maxMicDataPoints);
             Array.Clear(mic4, 0, maxMicDataPoints);
+
+            if (micDirection == -1)
+            { 
+                return -1; 
+            }
+
+            double angle = micAng[micDirection];
+            int prev = (micDirection - 1 + micDirection) % numMics;
+            int next = (micDirection + 1) % numMics;
+            //angle -= Math.Abs(micAng[prev] - micAng[micDirection]) / 2 * (micSum[prev] / micSum[micDirection]);
+            //angle += Math.Abs(micAng[next] - micAng[micDirection]) / 2 * (micSum[next] / micSum[micDirection]);
+
+            return NormalizeAngle(angle);
         }
 
         // At every iteration of the control loop, this function calculates
@@ -682,23 +706,12 @@ namespace DrRobot.JaguarControl
                 TimeSpan ts = DateTime.Now - startTime;
                 time = ts.TotalSeconds;
                 String newData = time.ToString() + " " +
-                    //jaguarControl.realJaguar.GetSensorHumanMotion1().ToString() + " " +
-                    //jaguarControl.realJaguar.GetSensorHumanAlarm1().ToString() + " " +
-                    //jaguarControl.realJaguar.GetSensorHumanMotion2().ToString() + " " +
-                    //jaguarControl.realJaguar.GetSensorHumanAlarm2().ToString() + " " +
-                    //mic1[micIndex] + " " +
-                    //mic2[micIndex] + " " +
-                    //mic3[micIndex] + " " +
-                    //mic4[micIndex] + " " +
                     micDirection.ToString() + " " +
-                    mic1Sum.ToString() + " " +
-                    mic2Sum.ToString() + " " +
-                    mic3Sum.ToString() + " " +
-                    mic4Sum.ToString() + " " +
-                    mic1Log.ToString() + " " +
-                    mic2Log.ToString() + " " +
-                    mic3Log.ToString() + " " +
-                    mic4Log.ToString();
+                    micSum[0].ToString() + " " +
+                    micSum[1].ToString() + " " +
+                    micSum[2].ToString() + " " +
+                    micSum[3].ToString() + " " +
+                    soundAngle.ToString();
 
                 logFile.WriteLine(newData);
             }
