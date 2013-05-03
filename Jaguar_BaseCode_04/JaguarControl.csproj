@@ -77,12 +77,19 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="AxDDrRobotSentinel_Simulator.cs" />
+    <Compile Include="Complex.cs" />
+    <Compile Include="ComplexArray.cs" />
+    <Compile Include="ComplexF.cs" />
+    <Compile Include="ComplexMath.cs" />
+    <Compile Include="ComplexStats.cs" />
     <Compile Include="DrRobotRobotConnection.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DrRobotRobotConnection.designer.cs">
       <DependentUpon>DrRobotRobotConnection.cs</DependentUpon>
     </Compile>
+    <Compile Include="Fourier.cs" />
+    <Compile Include="FourierDirection.cs" />
     <Compile Include="Genetic.cs" />
     <Compile Include="GoogleEarth.cs" />
     <Compile Include="IMUGPSComm.cs">
@@ -106,7 +113,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Map.cs" />
-    <Compile Include="Navigation.cs" />
+    <Compile Include="Navigation.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="DrRobotRobotConnection.resx">
